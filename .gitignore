@@ -1,0 +1,5 @@
+build/
+lib/
+*.idx
+.vscode/
+.DS_Store
