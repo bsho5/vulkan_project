@@ -29,8 +29,7 @@ add_custom_target(shaders ALL DEPENDS ${SPV_SHADERS})
 
 
 file(GLOB engine CONFIGURE_DEPENDS "*.h" "*.cpp")
-link_directories(cpp-files)
-link_directories(hpp-files)
+
 add_subdirectory(lib/glm-master)
 
 # == exe ==
