@@ -1,8 +1,10 @@
 #include "app.hpp"
+#include "model.hpp"
 #include "pipeline.hpp"
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 #include <vulkan/vulkan_core.h>
  
 namespace lve {
@@ -14,7 +16,42 @@ void App::run() {
   vkDeviceWaitIdle(device.device());
 }
 
+// void App::sierpinski(
+//     std::vector<Model::Vertex> &vertices,
+//     int depth,
+//     glm::vec2 left,
+//     glm::vec2 right,
+//     glm::vec2 top) {
+//   if (depth <= 0) {
+//     vertices.push_back({top});
+//     vertices.push_back({right});
+//     vertices.push_back({left});
+//   } else {
+//     auto leftTop = 0.5f * (left + top);
+//     auto rightTop = 0.5f * (right + top);
+//     auto leftRight = 0.5f * (left + right);
+//     sierpinski(vertices, depth - 1, left, leftRight, leftTop);
+//     sierpinski(vertices, depth - 1, leftRight, right, rightTop);
+//     sierpinski(vertices, depth - 1, leftTop, rightTop, top);
+//   }
+// }
+// void App::loadModels() {
+//   std::vector<Model::Vertex> vertices{};
+//   sierpinski(vertices, 5, {-0.5f, 0.5f}, {0.5f, 0.5f}, {0.0f, -0.5f});
+//   model = std::make_unique<Model>(device, vertices);
+// }
+
+void App::loadModels(){
+  std::vector<Model::Vertex>vertices{
+{{0.0f,-0.5f}},
+{{0.5f,0.5f}},
+{{-0.5f,0.5f}}
+  };
+  model = std::make_unique<Model>(device,vertices);
+}
+
 App::App(){
+    loadModels();
     createPipelineLayout();
     createPipeline();
     createCommandBuffers();
@@ -87,7 +124,9 @@ void App::createCommandBuffers(){
   vkCmdBeginRenderPass( commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
   pipeline->bind(commandBuffers[i]);
-  vkCmdDraw( commandBuffers[i], 3, 2, 0, 0);
+    model->bind(commandBuffers[i]);
+     model->draw(commandBuffers[i]);
+
 
   vkCmdEndRenderPass(commandBuffers[i]);
 
