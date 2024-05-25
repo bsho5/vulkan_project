@@ -3,3 +3,4 @@ lib/
 *.idx
 .vscode/
 .DS_Store
+.spv
