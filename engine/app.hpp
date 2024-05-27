@@ -1,6 +1,6 @@
 #pragma once
 #include "device.hpp"
-#include "model.hpp"
+#include "game_object.hpp"
 
 #include "pipeline.hpp"
 #include "swap_chain.hpp"
@@ -26,7 +26,7 @@ public:
   void run();
 
 private:
-  void loadModels();
+  void loadGameObjects();
   void createPipeline();
   void createPipelineLayout();
   void createCommandBuffers();
@@ -37,6 +37,7 @@ private:
   void recordCommandBuffer(int imageIndex);
   void sierpinski(std::vector<Model::Vertex> &vertices, int depth,
                   glm::vec2 left, glm::vec2 right, glm::vec2 top);
+  void renderGameObjects(VkCommandBuffer commandBuffer);
 
   Window window{WIDTH, HEIGHT, "vulkan window"};
   Device device{window};
@@ -44,6 +45,6 @@ private:
   std::unique_ptr<Pipeline> pipeline;
   VkPipelineLayout pipelineLayout;
   std::vector<VkCommandBuffer> commandBuffers;
-  std::unique_ptr<Model> model;
+  std::vector<GameObject> gameObjects;
 };
 } // namespace lve
