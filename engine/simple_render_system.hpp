@@ -23,7 +23,7 @@ class SimpleRenderSystem {
   void renderGameObjects(
       VkCommandBuffer commandBuffer,
       std::vector<GameObject> &gameObjects,
-      const Camera &camera);
+      const LveCamera &camera);
 
  private:
   void createPipelineLayout();

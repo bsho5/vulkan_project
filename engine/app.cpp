@@ -26,7 +26,10 @@ App::App() {  loadGameObjects();}
 App::~App(){}
 void App::run() {
   SimpleRenderSystem simpleRenderSystem{device, renderer.getSwapChainRenderPass()};
-    Camera camera{};
+    LveCamera camera{};
+
+    camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f, 0.f, 2.5f));
+
 
   while (!window.shouldClose()) {
    
