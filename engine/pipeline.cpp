@@ -71,8 +71,8 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilePath,
   shaderStages[1].pSpecializationInfo = nullptr;
 
 
-  auto bindingDescription = Model::Vertex::getBindingDescription();
-  auto attributeDescription = Model::Vertex::getAttributeDescription();
+  auto bindingDescription = LveModel::Vertex::getBindingDescription();
+  auto attributeDescription = LveModel::Vertex::getAttributeDescription();
   // VkPipelineViewportStateCreateInfo viewportInfo{};
   //   viewportInfo.sType =
   //     VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

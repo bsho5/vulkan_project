@@ -6,7 +6,7 @@
 #include <vulkan/vulkan_core.h>
 
 namespace lve {
-class Model {
+class LveModel {
 
 public:
   struct Vertex {
@@ -17,20 +17,31 @@ public:
     getAttributeDescription();
   };
 
-  Model();
-  ~Model();
-  Model(const Model &) = delete;
-  Model &operator=(const Model &) = delete;
-  Model(Device &device, const std::vector<Vertex> &vertices);
-  void bind(VkCommandBuffer commandBuffer);
+  LveModel();
+  ~LveModel();
+  LveModel(const LveModel &) = delete;
+  LveModel &operator=(const LveModel &) = delete;
+struct Builder {
+    std::vector<Vertex> vertices{};
+    std::vector<uint32_t> indices{};
+  };
+
+  LveModel(Device &device, const LveModel::Builder &builder);  void bind(VkCommandBuffer commandBuffer);
   void draw(VkCommandBuffer commandBuffer);
 
 private:
   void createVertexBuffers(const std::vector<Vertex> &vertices);
+  void createIndexBuffers(const std::vector<uint32_t> &indices);
 
   Device &device;
   VkBuffer vertexBuffer;
   VkDeviceMemory vertexBufferMemory;
   uint32_t vertexCount;
+
+  bool hasIndexBuffer = false;
+  VkBuffer indexBuffer;
+  VkDeviceMemory indexBufferMemory;
+  uint32_t indexCount;
+
 };
 } // namespace lve
