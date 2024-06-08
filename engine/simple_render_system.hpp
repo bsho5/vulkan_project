@@ -14,7 +14,7 @@
 namespace lve {
 class SimpleRenderSystem {
  public:
-  SimpleRenderSystem(Device &device, VkRenderPass renderPass);
+  SimpleRenderSystem(LveDevice &device, VkRenderPass renderPass);
   ~SimpleRenderSystem();
 
   SimpleRenderSystem(const SimpleRenderSystem &) = delete;
@@ -29,7 +29,7 @@ class SimpleRenderSystem {
   void createPipelineLayout();
   void createPipeline(VkRenderPass renderPass);
 
-  Device &lveDevice;
+  LveDevice &lveDevice;
 
   std::unique_ptr<Pipeline> lvePipeline;
   VkPipelineLayout pipelineLayout;

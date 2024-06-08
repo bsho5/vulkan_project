@@ -10,13 +10,13 @@
 
 namespace lve {
 
-SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent)
+SwapChain::SwapChain(LveDevice &deviceRef, VkExtent2D extent)
     : device{deviceRef}, windowExtent{extent} {
         init();
 }
 
 SwapChain::SwapChain(
-    Device &device, VkExtent2D extent, std::shared_ptr<SwapChain> previous)
+    LveDevice &device, VkExtent2D extent, std::shared_ptr<SwapChain> previous)
     : device{device}, windowExtent{extent}, oldSwapChain{previous} {
   init();
   oldSwapChain = nullptr;

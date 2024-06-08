@@ -13,7 +13,7 @@
 namespace   lve{
 class  Renderer {
  public:
-   Renderer( Window &window,  Device &device);
+   Renderer( Window &window,  LveDevice &device);
   ~ Renderer();
 
    Renderer(const  Renderer &) = delete;
@@ -46,7 +46,7 @@ class  Renderer {
   void recreateSwapChain();
 
   Window & window;
-  Device & device;
+  LveDevice & device;
   std::unique_ptr<SwapChain>  swapChain;
   std::vector<VkCommandBuffer> commandBuffers;
 

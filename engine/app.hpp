@@ -27,7 +27,7 @@ private:
 
 
   Window window{WIDTH, HEIGHT, "vulkan window"};
-  Device device{window};
+  LveDevice device{window};
   Renderer renderer{window, device};
 
   std::vector<GameObject> gameObjects;

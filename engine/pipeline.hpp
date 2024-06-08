@@ -28,7 +28,7 @@ struct PipelineConfigInfo {
 class Pipeline{
     
     public:
-    Pipeline(Device &device,const std::string &vertFilePath,const std::string &fragFilePath, const PipelineConfigInfo& configInfo);
+    Pipeline(LveDevice &device,const std::string &vertFilePath,const std::string &fragFilePath, const PipelineConfigInfo& configInfo);
     ~Pipeline();
      Pipeline (const Pipeline &) = delete;
     Pipeline &operator=(const Pipeline &)=delete;
@@ -38,7 +38,7 @@ class Pipeline{
     static std::vector<char> readFile(const std::string &filePath);
     void createGraphicsPipeline(const std::string &vertFilePath,const std::string &fragFilePath, const PipelineConfigInfo& configInfoVkShaderModule );
     void createShaderModule(const std::vector<char>& code,VkShaderModule *shaderModule);
-    Device &pipelineDevice;
+    LveDevice &pipelineDevice;
     VkPipeline graphicsPipeline;
     VkShaderModule vertShaderModule;
     VkShaderModule fragShaderModule;

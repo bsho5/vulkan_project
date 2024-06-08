@@ -17,7 +17,7 @@ struct SimplePushConstantData {
   alignas(16) glm::vec3 color{};
 };
 
-SimpleRenderSystem::SimpleRenderSystem(Device& device, VkRenderPass renderPass)
+SimpleRenderSystem::SimpleRenderSystem(LveDevice& device, VkRenderPass renderPass)
     : lveDevice{device} {
   createPipelineLayout();
   createPipeline(renderPass);

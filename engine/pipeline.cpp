@@ -12,7 +12,7 @@
 
 namespace lve {
 
-Pipeline::Pipeline(Device &device, const std::string &vertFilePath,
+Pipeline::Pipeline(LveDevice &device, const std::string &vertFilePath,
                    const std::string &fragFilePath,
                    const PipelineConfigInfo &configInfo)
     : pipelineDevice{device} {

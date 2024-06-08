@@ -7,7 +7,7 @@
 
 namespace   lve{
 
- Renderer:: Renderer(  Window &window,  Device &device)
+ Renderer:: Renderer(  Window &window,  LveDevice &device)
     :  window{window},  device{device} {
   recreateSwapChain();
   createCommandBuffers();

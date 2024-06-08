@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 #include "device.hpp"
 #include <glm/glm.hpp>
@@ -12,9 +13,16 @@ public:
   struct Vertex {
     glm::vec3 position{};
     glm::vec3 color{};
+      glm::vec3 normal{};
+    glm::vec2 uv{};
     static std::vector<VkVertexInputBindingDescription> getBindingDescription();
     static std::vector<VkVertexInputAttributeDescription>
     getAttributeDescription();
+        bool operator==(const Vertex &other) const {
+      return position == other.position && color == other.color && normal == other.normal &&
+             uv == other.uv;
+    }
+
   };
 
   LveModel();
@@ -24,16 +32,21 @@ public:
 struct Builder {
     std::vector<Vertex> vertices{};
     std::vector<uint32_t> indices{};
+        void loadModel(const std::string &filepath);
+
   };
 
-  LveModel(Device &device, const LveModel::Builder &builder);  void bind(VkCommandBuffer commandBuffer);
+  LveModel(LveDevice &device, const LveModel::Builder &builder); 
+   static std::unique_ptr<LveModel> createModelFromFile(
+      LveDevice &device, const std::string &filepath);
+   void bind(VkCommandBuffer commandBuffer);
   void draw(VkCommandBuffer commandBuffer);
 
 private:
   void createVertexBuffers(const std::vector<Vertex> &vertices);
   void createIndexBuffers(const std::vector<uint32_t> &indices);
 
-  Device &device;
+  LveDevice &device;
   VkBuffer vertexBuffer;
   VkDeviceMemory vertexBufferMemory;
   uint32_t vertexCount;
