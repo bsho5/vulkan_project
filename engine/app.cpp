@@ -24,7 +24,14 @@ struct GlobalUbo {
   glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
 };
 
-App::App() { loadGameObjects(); }
+App::App() {
+  globalPool = LveDescriptorPool::Builder(device)
+                   .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+                   .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                SwapChain::MAX_FRAMES_IN_FLIGHT)
+                   .build();
+  loadGameObjects();
+}
 App::~App() {}
 void App::run() {
   std::vector<std::unique_ptr<LveBuffer>> uboBuffers(
@@ -36,8 +43,23 @@ void App::run() {
     uboBuffers[i]->map();
   }
 
-  SimpleRenderSystem simpleRenderSystem{device,
-                                        renderer.getSwapChainRenderPass()};
+  auto globalSetLayout = LveDescriptorSetLayout::Builder(device)
+                             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                                         VK_SHADER_STAGE_VERTEX_BIT)
+                             .build();
+
+  std::vector<VkDescriptorSet> globalDescriptorSets(
+      SwapChain::MAX_FRAMES_IN_FLIGHT);
+  for (int i = 0; i < globalDescriptorSets.size(); i++) {
+    auto bufferInfo = uboBuffers[i]->descriptorInfo();
+    LveDescriptorWriter(*globalSetLayout, *globalPool)
+        .writeBuffer(0, &bufferInfo)
+        .build(globalDescriptorSets[i]);
+  }
+
+  SimpleRenderSystem simpleRenderSystem{
+      device, renderer.getSwapChainRenderPass(),
+      globalSetLayout->getDescriptorSetLayout()};
   LveCamera camera{};
 
   // camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f,
@@ -69,7 +91,8 @@ void App::run() {
     if (auto commandBuffer = renderer.beginFrame()) {
 
       int frameIndex = renderer.getFrameIndex();
-      FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera};
+      FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera,
+                          globalDescriptorSets[frameIndex]};
 
       GlobalUbo ubo{};
       ubo.projectionView = camera.getProjection() * camera.getView();

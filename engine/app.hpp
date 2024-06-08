@@ -1,4 +1,5 @@
 #pragma once
+#include "descriptors.hpp"
 #include "device.hpp"
 #include "game_object.hpp"
 #include "renderer.hpp"
@@ -29,6 +30,8 @@ private:
   Window window{WIDTH, HEIGHT, "vulkan window"};
   LveDevice device{window};
   Renderer renderer{window, device};
+
+  std::unique_ptr<LveDescriptorPool> globalPool{};
 
   std::vector<GameObject> gameObjects;
 };
