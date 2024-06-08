@@ -21,7 +21,9 @@ namespace lve {
 
 struct GlobalUbo {
   glm::mat4 projectionView{1.f};
-  glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+  glm::vec4 ambientLightColor{1.f, 1.f, 1.f, .02f}; // w is intensity
+  glm::vec3 lightPosition{-1.f};
+  alignas(16) glm::vec4 lightColor{1.f};
 };
 
 App::App() {
@@ -65,6 +67,8 @@ void App::run() {
   // camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f,
   // 0.f, 2.5f));
   auto viewerObject = GameObject::createGameObject();
+  viewerObject.transform.translation.z = -2.5f;
+
   KeyboardMovementController cameraController{};
 
   auto currentTime = std::chrono::high_resolution_clock::now();
@@ -86,7 +90,7 @@ void App::run() {
 
     float aspect = renderer.getAspectRatio();
     // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
-    camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+    camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 
     if (auto commandBuffer = renderer.beginFrame()) {
 
@@ -126,9 +130,16 @@ void App::loadGameObjects() {
       LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
   auto smoothVase = GameObject::createGameObject();
   smoothVase.model = lveModel;
-  smoothVase.transform.translation = {.0f, .5f, 1.5f};
+  smoothVase.transform.translation = {.0f, .5f, 0.f};
   // smoothVase.transform.scale = {3.f, 1.5f, 3.f};
+
   gameObjects.push_back(std::move(smoothVase));
+  lveModel = LveModel::createModelFromFile(device, "../engine/models/quad.obj");
+  auto floor = GameObject::createGameObject();
+  floor.model = lveModel;
+  floor.transform.translation = {0.f, .5f, 0.f};
+  floor.transform.scale = {3.f, 1.f, 3.f};
+  gameObjects.push_back(std::move(floor));
 }
 
 } // namespace lve
