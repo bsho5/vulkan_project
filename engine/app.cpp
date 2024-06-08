@@ -73,13 +73,20 @@ simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
 
 
 void App::loadGameObjects() {
-  std::shared_ptr<LveModel> lveModel =
-      LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
-  auto gameObj = GameObject::createGameObject();
-  gameObj.model = lveModel;
-  gameObj.transform.translation = {.0f, .0f, 2.5f};
-  gameObj.transform.scale = glm::vec3(3.f);
-  gameObjects.push_back(std::move(gameObj));
+  // std::shared_ptr<LveModel> lveModel =
+  //         LveModel::createModelFromFile(device, "../engine/models/flat_vase.obj");
+  // auto flatVase = GameObject::createGameObject();
+  // flatVase.model = lveModel;
+  // flatVase.transform.translation = {-.5f, .5f, 2.5f};
+  // flatVase.transform.scale = {3.f, 1.5f, 3.f};
+  // gameObjects.push_back(std::move(flatVase));
+
+  std::shared_ptr<LveModel>lveModel = LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
+  auto smoothVase = GameObject::createGameObject();
+  smoothVase.model = lveModel;
+  smoothVase.transform.translation = {.0f, .5f, 1.5f};
+  //smoothVase.transform.scale = {3.f, 1.5f, 3.f};
+  gameObjects.push_back(std::move(smoothVase));
 
 
 }
