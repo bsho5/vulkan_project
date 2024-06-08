@@ -1,100 +1,111 @@
 #include "app.hpp"
-#include "simple_render_system.hpp"
+#include "buffer.hpp"
+#include "camera.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "lib/models/tiny_object.h"
-#include "camera.hpp"
-
-
+#include "simple_render_system.hpp"
 
 // std
-
 
 #include <cassert>
 #include <chrono>
 
-
-
-//libs
+// libs
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
- 
 namespace lve {
 
+struct GlobalUbo {
+  glm::mat4 projectionView{1.f};
+  glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+};
 
-
-App::App() {  loadGameObjects();}
-App::~App(){}
+App::App() { loadGameObjects(); }
+App::~App() {}
 void App::run() {
-  SimpleRenderSystem simpleRenderSystem{device, renderer.getSwapChainRenderPass()};
-    LveCamera camera{};
+  std::vector<std::unique_ptr<LveBuffer>> uboBuffers(
+      SwapChain::MAX_FRAMES_IN_FLIGHT);
+  for (int i = 0; i < uboBuffers.size(); i++) {
+    uboBuffers[i] = std::make_unique<LveBuffer>(
+        device, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+    uboBuffers[i]->map();
+  }
 
-    //camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f, 0.f, 2.5f));
-auto viewerObject = GameObject::createGameObject();
+  SimpleRenderSystem simpleRenderSystem{device,
+                                        renderer.getSwapChainRenderPass()};
+  LveCamera camera{};
+
+  // camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f,
+  // 0.f, 2.5f));
+  auto viewerObject = GameObject::createGameObject();
   KeyboardMovementController cameraController{};
 
   auto currentTime = std::chrono::high_resolution_clock::now();
 
   while (!window.shouldClose()) {
-   
-   
+
     glfwPollEvents();
-        auto newTime = std::chrono::high_resolution_clock::now();
+    auto newTime = std::chrono::high_resolution_clock::now();
     float frameTime =
-        std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+        std::chrono::duration<float, std::chrono::seconds::period>(newTime -
+                                                                   currentTime)
+            .count();
     currentTime = newTime;
 
-    cameraController.moveInPlaneXZ(window.getGLFWwindow(), frameTime, viewerObject);
-    camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+    cameraController.moveInPlaneXZ(window.getGLFWwindow(), frameTime,
+                                   viewerObject);
+    camera.setViewYXZ(viewerObject.transform.translation,
+                      viewerObject.transform.rotation);
 
-        float aspect = renderer.getAspectRatio();
+    float aspect = renderer.getAspectRatio();
     // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
     camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
+    if (auto commandBuffer = renderer.beginFrame()) {
 
-     if (auto commandBuffer = renderer.beginFrame()) {
-       
+      int frameIndex = renderer.getFrameIndex();
+      FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera};
+
+      GlobalUbo ubo{};
+      ubo.projectionView = camera.getProjection() * camera.getView();
+      uboBuffers[frameIndex]->writeToBuffer(&ubo);
+      uboBuffers[frameIndex]->flush();
+
+      // render
       renderer.beginSwapChainRenderPass(commandBuffer);
-simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+      simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
       renderer.endSwapChainRenderPass(commandBuffer);
       renderer.endFrame();
-      
     }
-   
   }
   vkDeviceWaitIdle(device.device());
 }
 
-
-// temporary helper function, creates a 1x1x1 cube centered at offset with an index buffer
-
+// temporary helper function, creates a 1x1x1 cube centered at offset with an
+// index buffer
 
 void App::loadGameObjects() {
   // std::shared_ptr<LveModel> lveModel =
-  //         LveModel::createModelFromFile(device, "../engine/models/flat_vase.obj");
+  //         LveModel::createModelFromFile(device,
+  //         "../engine/models/flat_vase.obj");
   // auto flatVase = GameObject::createGameObject();
   // flatVase.model = lveModel;
   // flatVase.transform.translation = {-.5f, .5f, 2.5f};
   // flatVase.transform.scale = {3.f, 1.5f, 3.f};
   // gameObjects.push_back(std::move(flatVase));
 
-  std::shared_ptr<LveModel>lveModel = LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
+  std::shared_ptr<LveModel> lveModel =
+      LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
   auto smoothVase = GameObject::createGameObject();
   smoothVase.model = lveModel;
   smoothVase.transform.translation = {.0f, .5f, 1.5f};
-  //smoothVase.transform.scale = {3.f, 1.5f, 3.f};
+  // smoothVase.transform.scale = {3.f, 1.5f, 3.f};
   gameObjects.push_back(std::move(smoothVase));
-
-
 }
-
-
-
-
-
-
 
 } // namespace lve
