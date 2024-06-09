@@ -32,6 +32,7 @@ private:
   LveDevice &lveDevice;
 
   std::unique_ptr<Pipeline> lvePipeline;
+  std::unique_ptr<Pipeline> floorPipeline;
   VkPipelineLayout pipelineLayout;
 };
 } // namespace lve

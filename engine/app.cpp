@@ -24,6 +24,7 @@ struct GlobalUbo {
   glm::vec4 ambientLightColor{1.f, 1.f, 1.f, .02f}; // w is intensity
   glm::vec3 lightPosition{-1.f};
   alignas(16) glm::vec4 lightColor{1.f};
+  alignas(16) float t;
 };
 
 App::App() {
@@ -72,8 +73,9 @@ void App::run() {
   KeyboardMovementController cameraController{};
 
   auto currentTime = std::chrono::high_resolution_clock::now();
-
+int x = 0;
   while (!window.shouldClose()) {
+x++;
 
     glfwPollEvents();
     auto newTime = std::chrono::high_resolution_clock::now();
@@ -100,6 +102,7 @@ void App::run() {
 
       GlobalUbo ubo{};
       ubo.projectionView = camera.getProjection() * camera.getView();
+      ubo.t = x *0.1f;
       uboBuffers[frameIndex]->writeToBuffer(&ubo);
       uboBuffers[frameIndex]->flush();
 
@@ -126,20 +129,21 @@ void App::loadGameObjects() {
   // flatVase.transform.scale = {3.f, 1.5f, 3.f};
   // gameObjects.push_back(std::move(flatVase));
 
-  std::shared_ptr<LveModel> lveModel =
-      LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
+  std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/40k.obj");
+  auto floor = GameObject::createGameObject();
+  floor.model = lveModel;
+  floor.transform.translation = {0.f, 20.5f, 80.f};
+  floor.transform.scale = {50.f, 1.f, 100.f};
+  gameObjects.push_back(std::move(floor));
+      
+  // smoothVase.transform.scale = {3.f, 1.5f, 3.f};
+
+  
+  lveModel = LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
   auto smoothVase = GameObject::createGameObject();
   smoothVase.model = lveModel;
   smoothVase.transform.translation = {.0f, .5f, 0.f};
-  // smoothVase.transform.scale = {3.f, 1.5f, 3.f};
-
   gameObjects.push_back(std::move(smoothVase));
-  lveModel = LveModel::createModelFromFile(device, "../engine/models/quad.obj");
-  auto floor = GameObject::createGameObject();
-  floor.model = lveModel;
-  floor.transform.translation = {0.f, .5f, 0.f};
-  floor.transform.scale = {3.f, 1.f, 3.f};
-  gameObjects.push_back(std::move(floor));
 }
 
 } // namespace lve

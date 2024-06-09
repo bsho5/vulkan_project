@@ -64,31 +64,48 @@ void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
   lvePipeline = std::make_unique<Pipeline>(
       lveDevice, "../engine/shaders/shader.vert.spv",
       "../engine/shaders/shader.frag.spv", pipelineConfig);
+  floorPipeline = std::make_unique<Pipeline>(
+      lveDevice, "../engine/shaders/floor_shader.vert.spv",
+      "../engine/shaders/floor_shader.frag.spv", pipelineConfig);
 }
 
 void SimpleRenderSystem::renderGameObjects(
     FrameInfo &frameInfo, std::vector<GameObject> &gameObjects) {
-  lvePipeline->bind(frameInfo.commandBuffer);
+  // lvePipeline->bind(frameInfo.commandBuffer);
   vkCmdBindDescriptorSets(frameInfo.commandBuffer,
                           VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                           &frameInfo.globalDescriptorSet, 0, nullptr);
 
-  for (auto &obj : gameObjects) {
+  // for (auto &obj : gameObjects) {
+  //   // obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f,
+  //   // glm::two_pi<float>()); obj.transform.rotation.x =
+  //   // glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
+
+  //   SimplePushConstantData push{};
+  //   push.modelMatrix = obj.transform.mat4();
+
+  //   push.normalMatrix = obj.transform.normalMatrix();
+  //   vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+  //                      VK_SHADER_STAGE_VERTEX_BIT |
+  //                          VK_SHADER_STAGE_FRAGMENT_BIT,
+  //                      0, sizeof(SimplePushConstantData), &push);
+  //   obj.model->bind(frameInfo.commandBuffer);
+  //   obj.model->draw(frameInfo.commandBuffer);
+  // }
+  floorPipeline->bind(frameInfo.commandBuffer);
+   SimplePushConstantData push{};
     // obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f,
     // glm::two_pi<float>()); obj.transform.rotation.x =
     // glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
+    push.modelMatrix = gameObjects[0].transform.mat4();
 
-    SimplePushConstantData push{};
-    push.modelMatrix = obj.transform.mat4();
-
-    push.normalMatrix = obj.transform.normalMatrix();
+    push.normalMatrix = gameObjects[0].transform.normalMatrix();
     vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
                        VK_SHADER_STAGE_VERTEX_BIT |
                            VK_SHADER_STAGE_FRAGMENT_BIT,
                        0, sizeof(SimplePushConstantData), &push);
-    obj.model->bind(frameInfo.commandBuffer);
-    obj.model->draw(frameInfo.commandBuffer);
-  }
+    gameObjects[0].model->bind(frameInfo.commandBuffer);
+    gameObjects[0].model->draw(frameInfo.commandBuffer);
 }
 
 } // namespace lve
