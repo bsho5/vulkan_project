@@ -1,18 +1,17 @@
-#version 450                                                                             
-                                                                                          
+#version 450
+
+// in                                                                                        
 layout(location = 0) in vec3 position;
-
 layout(location = 1) in vec3 color; 
-
 layout(location = 2) in vec3 normal;
-
 layout(location = 3) in vec2 uv;
-
 layout(location = 4) in float t;
 
-
-
+// out 
 layout(location = 0) out vec3 fragColor;
+layout(location = 1) out vec3 fragPosWorld;
+layout(location = 2) out vec3 fragNormalWorld;
+
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projectionViewMatrix;
@@ -56,7 +55,7 @@ void main()
   float thirdWave =  sin(((positionWorld.x*frequency_3 )+( ubo.t*alpha_3))); 
   float sinWave = firstWave + secondWave + thirdWave;
   
-  positionWorld.y = sinWave;
+  positionWorld.y = firstWave;
 
   
   vec4 finalPosition =  ubo.projectionViewMatrix * positionWorld ;
@@ -66,15 +65,8 @@ void main()
   //  finalPosition.y = finalPosition.y * sinWave; 
   gl_Position =vec4(finalPosition) ;
  
-  vec3 normalWorldSpace = normalize(mat3(push.normalMatrix) * normal);
-
-  vec3 directionToLight = ubo.lightPosition - positionWorld.xyz;
-  float attenuation = 1.0 / dot(directionToLight, directionToLight); // distance squared
-
-  vec3 lightColor = ubo.lightColor.xyz * ubo.lightColor.w * attenuation;
-  vec3 ambientLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-  vec3 diffuseLight = lightColor * max(dot(normalWorldSpace, normalize(directionToLight)), 0);
-
-  fragColor =(diffuseLight + ambientLight) * color;
+  fragNormalWorld = normalize(mat3(push.normalMatrix) * normalize( vec3(0.0000, -1.0000, 0.0000)));
+  fragPosWorld = positionWorld.xyz;
+  fragColor = color;
 
 }

@@ -15,12 +15,13 @@ public:
     glm::vec3 color{};
     glm::vec3 normal{};
     glm::vec2 uv{};
+    float t=0.f;
     static std::vector<VkVertexInputBindingDescription> getBindingDescription();
     static std::vector<VkVertexInputAttributeDescription>
     getAttributeDescription();
     bool operator==(const Vertex &other) const {
       return position == other.position && color == other.color &&
-             normal == other.normal && uv == other.uv;
+             normal == other.normal && uv == other.uv&& t== other.t;
     }
   };
 

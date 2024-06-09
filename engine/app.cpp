@@ -22,9 +22,9 @@ namespace lve {
 struct GlobalUbo {
   glm::mat4 projectionView{1.f};
   glm::vec4 ambientLightColor{1.f, 1.f, 1.f, .02f}; // w is intensity
-  glm::vec3 lightPosition{-1.f};
+  glm::vec3 lightPosition{-2.f};
   alignas(16) glm::vec4 lightColor{1.f};
-  alignas(16) float t;
+  alignas(16) float t = 0.f;
 };
 
 App::App() {
@@ -48,7 +48,7 @@ void App::run() {
 
   auto globalSetLayout = LveDescriptorSetLayout::Builder(device)
                              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                         VK_SHADER_STAGE_VERTEX_BIT)
+                                          VK_SHADER_STAGE_ALL_GRAPHICS)
                              .build();
 
   std::vector<VkDescriptorSet> globalDescriptorSets(
@@ -129,12 +129,19 @@ void App::loadGameObjects() {
   // flatVase.transform.scale = {3.f, 1.5f, 3.f};
   // gameObjects.push_back(std::move(flatVase));
 
-  std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/40k.obj");
+  std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/20k.obj");
   auto floor = GameObject::createGameObject();
   floor.model = lveModel;
-  floor.transform.translation = {0.f, 20.5f, 80.f};
+  floor.transform.translation = {0.f, 0.5f, 80.f};
   floor.transform.scale = {50.f, 1.f, 100.f};
   gameObjects.push_back(std::move(floor));
+  
+//    std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/quad.obj");
+//   auto floor = GameObject::createGameObject();
+//   floor.model = lveModel;
+//   floor.transform.translation = {.0f, .5f, 100.f};
+// floor.transform.scale = {50.f, 1.f, 100.f};
+//   gameObjects.push_back(std::move(floor));
       
   // smoothVase.transform.scale = {3.f, 1.5f, 3.f};
 

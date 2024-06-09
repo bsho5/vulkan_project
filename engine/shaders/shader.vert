@@ -8,6 +8,10 @@ layout(location = 2) in vec3 normal;
 
 layout(location = 3) in vec2 uv;
 
+layout(location = 4) in float t;
+
+
+
 
 layout(location = 0) out vec3 fragColor;
 

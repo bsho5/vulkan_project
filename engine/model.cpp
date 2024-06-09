@@ -19,7 +19,7 @@ template <> struct hash<lve::LveModel::Vertex> {
   size_t operator()(lve::LveModel::Vertex const &vertex) const {
     size_t seed = 0;
     lve::hashCombine(seed, vertex.position, vertex.color, vertex.normal,
-                     vertex.uv);
+                     vertex.uv,vertex.t);
     return seed;
   }
 };
@@ -132,6 +132,8 @@ LveModel::Vertex::getAttributeDescription() {
       {2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal)});
   attributeDescriptions.push_back(
       {3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv)});
+  attributeDescriptions.push_back(
+      {4, 0, VK_FORMAT_R32_SFLOAT, offsetof(Vertex, t)});
 
   return attributeDescriptions;
 }
