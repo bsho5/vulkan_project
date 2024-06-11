@@ -21,8 +21,8 @@ namespace lve {
 
 struct GlobalUbo {
   glm::mat4 projectionView{1.f};
-  glm::vec4 ambientLightColor{1.f, 1.f, 1.f, .02f}; // w is intensity
-  glm::vec3 lightPosition{-2.f};
+  glm::vec4 ambientLightColor{1.f, 1.f, 1.f, 0.002f}; // w is intensity
+  glm::vec3 lightPosition {70.0f, -5.5f, 120.f};
   alignas(16) glm::vec4 lightColor{1.f};
   alignas(16) float t = 0.f;
 };
@@ -68,7 +68,9 @@ void App::run() {
   // camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f,
   // 0.f, 2.5f));
   auto viewerObject = GameObject::createGameObject();
-  viewerObject.transform.translation.z = -2.5f;
+  viewerObject.transform.translation.z = 100.f;
+  viewerObject.transform.translation.x = 50.f;
+  viewerObject.transform.translation.y = -10.f;
 
   KeyboardMovementController cameraController{};
 
@@ -92,7 +94,7 @@ x++;
 
     float aspect = renderer.getAspectRatio();
     // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
-    camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
+    camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 
     if (auto commandBuffer = renderer.beginFrame()) {
 
@@ -129,28 +131,30 @@ void App::loadGameObjects() {
   // flatVase.transform.scale = {3.f, 1.5f, 3.f};
   // gameObjects.push_back(std::move(flatVase));
 
-  std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/20k.obj");
+  std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/40k.obj");
   auto floor = GameObject::createGameObject();
   floor.model = lveModel;
-  floor.transform.translation = {0.f, 0.5f, 80.f};
-  floor.transform.scale = {50.f, 1.f, 100.f};
+  floor.transform.translation = {200.0f, 0.5f, 300.f};
+  floor.transform.scale = {200.f, 1.f, 200.f};
+
+  floor.color = {0.222,0.343,0.472};
   gameObjects.push_back(std::move(floor));
   
-//    std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/quad.obj");
-//   auto floor = GameObject::createGameObject();
-//   floor.model = lveModel;
-//   floor.transform.translation = {.0f, .5f, 100.f};
-// floor.transform.scale = {50.f, 1.f, 100.f};
-//   gameObjects.push_back(std::move(floor));
+// lveModel =LveModel::createModelFromFile(device, "../engine/models/quad.obj");
+//   auto quad = GameObject::createGameObject();
+//   quad.model = lveModel;
+//   // quad.transform.translation = {.0f, .5f, 100.f};
+// quad.transform.scale = {50.f, 1.f, 100.f};
+//   gameObjects.push_back(std::move(quad));
       
-  // smoothVase.transform.scale = {3.f, 1.5f, 3.f};
+//   // smoothVase.transform.scale = {3.f, 1.5f, 3.f};
 
   
-  lveModel = LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
-  auto smoothVase = GameObject::createGameObject();
-  smoothVase.model = lveModel;
-  smoothVase.transform.translation = {.0f, .5f, 0.f};
-  gameObjects.push_back(std::move(smoothVase));
+//    lveModel = LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
+//   auto smoothVase = GameObject::createGameObject();
+//   smoothVase.model = lveModel;
+//   // smoothVase.transform.translation = {.0f, .5f, 0.f};
+//   gameObjects.push_back(std::move(smoothVase));
 }
 
 } // namespace lve
