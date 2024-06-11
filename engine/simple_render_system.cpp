@@ -92,20 +92,20 @@ void SimpleRenderSystem::renderGameObjects(
   //   obj.model->bind(frameInfo.commandBuffer);
   //   obj.model->draw(frameInfo.commandBuffer);
   // }
-  //   floorPipeline->bind(frameInfo.commandBuffer);
-  //  SimplePushConstantData push1{};
-  //   // obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f,
-  //   // glm::two_pi<float>()); obj.transform.rotation.x =
-  //   // glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
-  //   push1.modelMatrix = gameObjects[1].transform.mat4();
+    lvePipeline->bind(frameInfo.commandBuffer);
+   SimplePushConstantData push1{};
+    // obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f,
+    // glm::two_pi<float>()); obj.transform.rotation.x =
+    // glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
+    push1.modelMatrix = gameObjects[1].transform.mat4();
 
-  //   push1.normalMatrix = gameObjects[1].transform.normalMatrix();
-  //   vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-  //                      VK_SHADER_STAGE_VERTEX_BIT |
-  //                          VK_SHADER_STAGE_FRAGMENT_BIT,
-  //                      0, sizeof(SimplePushConstantData), &push1);
-  //   gameObjects[1].model->bind(frameInfo.commandBuffer);
-  //   gameObjects[1].model->draw(frameInfo.commandBuffer);
+    push1.normalMatrix = gameObjects[1].transform.normalMatrix();
+    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT |
+                           VK_SHADER_STAGE_FRAGMENT_BIT,
+                       0, sizeof(SimplePushConstantData), &push1);
+    gameObjects[1].model->bind(frameInfo.commandBuffer);
+    gameObjects[1].model->draw(frameInfo.commandBuffer);
   floorPipeline->bind(frameInfo.commandBuffer);
    SimplePushConstantData push{};
     // obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f,

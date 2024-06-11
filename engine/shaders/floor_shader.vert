@@ -14,7 +14,8 @@ layout(location = 2) out vec3 fragNormalWorld;
 
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
-  mat4 projectionViewMatrix;
+  mat4 projection;
+  mat4 view;
   vec4 ambientLightColor; // w is intensity
   vec3 lightPosition;
   vec4 lightColor;
@@ -98,7 +99,7 @@ void main()
 positionWorld.y = sinWave ;  
 
   
-  vec4 finalPosition =  ubo.projectionViewMatrix * positionWorld ;
+  vec4 finalPosition =  ubo.projection * ubo.view * positionWorld ;
   
   //       float sinWave =  sin(finalPosition.x); 
 

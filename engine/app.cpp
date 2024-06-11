@@ -20,8 +20,9 @@
 namespace lve {
 
 struct GlobalUbo {
-  glm::mat4 projectionView{1.f};
-  glm::vec4 ambientLightColor{1.f, 1.f, 1.f, 0.002f}; // w is intensity
+glm::mat4 projection{1.f};
+  glm::mat4 view{1.f};
+    glm::vec4 ambientLightColor{1.f, 1.f, 1.f, 0.002f}; // w is intensity
   glm::vec3 lightPosition {70.0f, -5.5f, 120.f};
   alignas(16) glm::vec4 lightColor{1.f};
   alignas(16) float t = 0.f;
@@ -63,6 +64,10 @@ void App::run() {
   SimpleRenderSystem simpleRenderSystem{
       device, renderer.getSwapChainRenderPass(),
       globalSetLayout->getDescriptorSetLayout()};
+  // PointLightSystem pointLightSystem{
+  //     device,
+  //     renderer.getSwapChainRenderPass(),
+  //     globalSetLayout->getDescriptorSetLayout()};
   LveCamera camera{};
 
   // camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f,
@@ -103,7 +108,8 @@ x++;
                           globalDescriptorSets[frameIndex]};
 
       GlobalUbo ubo{};
-      ubo.projectionView = camera.getProjection() * camera.getView();
+      ubo.projection = camera.getProjection();
+      ubo.view = camera.getView();
       ubo.t = x *0.1f;
       uboBuffers[frameIndex]->writeToBuffer(&ubo);
       uboBuffers[frameIndex]->flush();
@@ -111,6 +117,8 @@ x++;
       // render
       renderer.beginSwapChainRenderPass(commandBuffer);
       simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
+           // pointLightSystem.render(frameInfo);
+
       renderer.endSwapChainRenderPass(commandBuffer);
       renderer.endFrame();
     }
@@ -131,6 +139,15 @@ void App::loadGameObjects() {
   // flatVase.transform.scale = {3.f, 1.5f, 3.f};
   // gameObjects.push_back(std::move(flatVase));
 
+  // std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/40k.obj");
+  // auto floor = GameObject::createGameObject();
+  // floor.model = lveModel;
+  // floor.transform.translation = {200.0f, 0.5f, 300.f};
+  // floor.transform.scale = {200.f, 1.f, 200.f};
+
+  // floor.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor));
+  
   std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/40k.obj");
   auto floor = GameObject::createGameObject();
   floor.model = lveModel;
@@ -139,22 +156,33 @@ void App::loadGameObjects() {
 
   floor.color = {0.222,0.343,0.472};
   gameObjects.push_back(std::move(floor));
-  
-// lveModel =LveModel::createModelFromFile(device, "../engine/models/quad.obj");
-//   auto quad = GameObject::createGameObject();
-//   quad.model = lveModel;
+  // lveModel =LveModel::createModelFromFile(device, "../engine/models/quad.obj");
+//   auto light = GameObject::createGameObject();
+//   //light.model = lveModel;
 //   // quad.transform.translation = {.0f, .5f, 100.f};
-// quad.transform.scale = {50.f, 1.f, 100.f};
-//   gameObjects.push_back(std::move(quad));
+// light.transform.scale = {10.f, 10.f, 10.f};
+//   gameObjects.push_back(std::move(light));
+      
+lveModel =LveModel::createModelFromFile(device, "../engine/models/sphere.obj");
+  auto sphere = GameObject::createGameObject();
+  sphere.model = lveModel;
+  // quad.transform.translation = {.0f, .5f, 100.f};
+   sphere.transform.translation = {170.0f, -100.5f, 320.f};
+     sphere.transform.rotation ={90.0f,0.f,0.0f};
+
+sphere.transform.scale = {1.f, 1.f, 1.f};
+  gameObjects.push_back(std::move(sphere));
       
 //   // smoothVase.transform.scale = {3.f, 1.5f, 3.f};
 
   
-//    lveModel = LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
-//   auto smoothVase = GameObject::createGameObject();
-//   smoothVase.model = lveModel;
-//   // smoothVase.transform.translation = {.0f, .5f, 0.f};
-//   gameObjects.push_back(std::move(smoothVase));
+  //  lveModel = LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
+  // auto smoothVase = GameObject::createGameObject();
+  // smoothVase.model = lveModel;
+  // smoothVase.transform.scale = {50.f, 50.f, 50.f};
+  // smoothVase.transform.rotation ={60.0f,22.5f,0.0f};
+  //  smoothVase.transform.translation = {170.0f, -100.5f, 320.f};
+  // gameObjects.push_back(std::move(smoothVase));
 }
 
 } // namespace lve
