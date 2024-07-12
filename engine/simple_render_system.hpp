@@ -33,6 +33,7 @@ private:
 
   std::unique_ptr<Pipeline> lvePipeline;
   std::unique_ptr<Pipeline> floorPipeline;
+  std::unique_ptr<Pipeline> pointPipeline;
   VkPipelineLayout pipelineLayout;
 };
 } // namespace lve
