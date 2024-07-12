@@ -1,6 +1,7 @@
 #include "app.hpp"
 #include "buffer.hpp"
 #include "camera.hpp"
+#include "glm/fwd.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "lib/models/tiny_object.h"
 #include "simple_render_system.hpp"
@@ -9,6 +10,7 @@
 
 #include <cassert>
 #include <chrono>
+
 
 // libs
 
@@ -20,10 +22,12 @@
 namespace lve {
 
 struct GlobalUbo {
-glm::mat4 projection{1.f};
+  glm::mat4 projection{1.f};
   glm::mat4 view{1.f};
-    glm::vec4 ambientLightColor{1.f, 1.f, 1.f, 0.002f}; // w is intensity
-  glm::vec3 lightPosition {70.0f, -5.5f, 120.f};
+  glm::vec4 ambientLightColor{1.f, 1.f, 1.f, 0.05f}; // w is intensity
+  glm::vec3 lightPosition{200.0, -100.0, 500.0};
+  glm::mat4 invViewMatrix{1.0f};
+  glm::vec3 cameraPosition{0.0f};
   alignas(16) glm::vec4 lightColor{1.f};
   alignas(16) float t = 0.f;
 };
@@ -49,7 +53,7 @@ void App::run() {
 
   auto globalSetLayout = LveDescriptorSetLayout::Builder(device)
                              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                          VK_SHADER_STAGE_ALL_GRAPHICS)
+                                         VK_SHADER_STAGE_ALL_GRAPHICS)
                              .build();
 
   std::vector<VkDescriptorSet> globalDescriptorSets(
@@ -64,25 +68,21 @@ void App::run() {
   SimpleRenderSystem simpleRenderSystem{
       device, renderer.getSwapChainRenderPass(),
       globalSetLayout->getDescriptorSetLayout()};
-  // PointLightSystem pointLightSystem{
-  //     device,
-  //     renderer.getSwapChainRenderPass(),
-  //     globalSetLayout->getDescriptorSetLayout()};
+
   LveCamera camera{};
 
-  // camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f,
-  // 0.f, 2.5f));
+  int x = 0;
   auto viewerObject = GameObject::createGameObject();
-  viewerObject.transform.translation.z = 100.f;
-  viewerObject.transform.translation.x = 50.f;
-  viewerObject.transform.translation.y = -10.f;
+
+  // viewerObject.transform.translation.y = -10.f;
+  // viewerObject.transform.translation.x = -50.f;
 
   KeyboardMovementController cameraController{};
 
   auto currentTime = std::chrono::high_resolution_clock::now();
-int x = 0;
+
   while (!window.shouldClose()) {
-x++;
+    x++;
 
     glfwPollEvents();
     auto newTime = std::chrono::high_resolution_clock::now();
@@ -110,14 +110,16 @@ x++;
       GlobalUbo ubo{};
       ubo.projection = camera.getProjection();
       ubo.view = camera.getView();
-      ubo.t = x *0.1f;
+      ubo.cameraPosition = viewerObject.transform.translation;
+      ubo.invViewMatrix = camera.getInverseView();
+      ubo.t = x * 0.1f;
       uboBuffers[frameIndex]->writeToBuffer(&ubo);
       uboBuffers[frameIndex]->flush();
 
       // render
       renderer.beginSwapChainRenderPass(commandBuffer);
       simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
-           // pointLightSystem.render(frameInfo);
+      // pointLightSystem.render(frameInfo);
 
       renderer.endSwapChainRenderPass(commandBuffer);
       renderer.endFrame();
@@ -126,63 +128,149 @@ x++;
   vkDeviceWaitIdle(device.device());
 }
 
-// temporary helper function, creates a 1x1x1 cube centered at offset with an
-// index buffer
 
 void App::loadGameObjects() {
-  // std::shared_ptr<LveModel> lveModel =
-  //         LveModel::createModelFromFile(device,
-  //         "../engine/models/flat_vase.obj");
-  // auto flatVase = GameObject::createGameObject();
-  // flatVase.model = lveModel;
-  // flatVase.transform.translation = {-.5f, .5f, 2.5f};
-  // flatVase.transform.scale = {3.f, 1.5f, 3.f};
-  // gameObjects.push_back(std::move(flatVase));
 
-  // std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/40k.obj");
-  // auto floor = GameObject::createGameObject();
-  // floor.model = lveModel;
-  // floor.transform.translation = {200.0f, 0.5f, 300.f};
-  // floor.transform.scale = {200.f, 1.f, 200.f};
-
-  // floor.color = {0.222,0.343,0.472};
-  // gameObjects.push_back(std::move(floor));
-  
-  std::shared_ptr<LveModel> lveModel =LveModel::createModelFromFile(device, "../engine/models/40k.obj");
+  std::shared_ptr<LveModel> lveModel =
+      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
   auto floor = GameObject::createGameObject();
   floor.model = lveModel;
-  floor.transform.translation = {200.0f, 0.5f, 300.f};
-  floor.transform.scale = {200.f, 1.f, 200.f};
+  // floor.transform.translation = {0.0f, 0.5f, 200.f};
+  floor.transform.scale = {5.f, 1.f, 5.f};
 
-  floor.color = {0.222,0.343,0.472};
+  floor.color = {0.222, 0.343, 0.472};
   gameObjects.push_back(std::move(floor));
-  // lveModel =LveModel::createModelFromFile(device, "../engine/models/quad.obj");
-//   auto light = GameObject::createGameObject();
-//   //light.model = lveModel;
-//   // quad.transform.translation = {.0f, .5f, 100.f};
-// light.transform.scale = {10.f, 10.f, 10.f};
-//   gameObjects.push_back(std::move(light));
-      
-lveModel =LveModel::createModelFromFile(device, "../engine/models/sphere.obj");
+
+  lveModel =
+      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
+  auto floor2 = GameObject::createGameObject();
+  floor2.model = lveModel;
+  floor2.transform.translation = {100.0f, 0.0f, 0.f};
+  floor2.transform.scale = {5.f, 1.f, 5.f};
+  gameObjects.push_back(std::move(floor2));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor3 =
+  // GameObject::createGameObject(); floor3.model = lveModel;
+  // floor3.transform.translation = {200.0f, 0.0f, 0.f};
+  // floor3.transform.scale = {5.f, 1.f,5.f};
+  // floor3.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor3));
+
+  //  lveModel =LveModel::createModelFromFile(device,
+  //  "../engine/models/untitled2.obj");
+  // auto floor4 = GameObject::createGameObject();
+  // floor4.model = lveModel;
+  // floor4.transform.translation = {300.0f, 0.0f, 0.f};
+  // floor4.transform.scale = {5.f, 1.f,5.f};
+  // floor4.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor4));
+
+  lveModel =
+      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
+  auto floor5 = GameObject::createGameObject();
+  floor5.model = lveModel;
+  floor5.transform.translation = {0.0f, 0.5f, 100.f};
+  floor5.transform.scale = {5.f, 1.f, 5.f};
+  floor5.color = {0.222, 0.343, 0.472};
+  gameObjects.push_back(std::move(floor5));
+
+  lveModel =
+      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
+  auto floor6 = GameObject::createGameObject();
+  floor6.model = lveModel;
+  floor6.transform.translation = {100.0f, 0.0f, 100.f};
+  floor6.transform.scale = {5.f, 1.f, 5.f};
+  gameObjects.push_back(std::move(floor6));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor7 =
+  // GameObject::createGameObject(); floor7.model = lveModel;
+  // floor7.transform.translation = {200.0f, 0.0f, 100.f};
+  // floor7.transform.scale = {5.f, 1.f,5.f};
+  // floor7.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor7));
+
+  //  lveModel =LveModel::createModelFromFile(device,
+  //  "../engine/models/untitled2.obj");
+  // auto floor8 = GameObject::createGameObject();
+  // floor8.model = lveModel;
+  // floor8.transform.translation = {300.0f, 0.0f, 100.f};
+  // floor8.transform.scale = {5.f, 1.f,5.f};
+  // floor8.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor8));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor9 =
+  // GameObject::createGameObject(); floor9.model = lveModel;
+  // floor9.transform.translation = {0.0f, 0.5f, 200.f};
+  // floor9.transform.scale = {5.f, 1.f,5.f};
+  // floor9.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor9));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor10 =
+  // GameObject::createGameObject(); floor10.model = lveModel;
+  // floor10.transform.translation = {100.0f, 0.0f, 200.f};
+  // floor10.transform.scale = {5.f, 1.f,5.f};
+  // gameObjects.push_back(std::move(floor10));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor11 =
+  // GameObject::createGameObject(); floor11.model = lveModel;
+  // floor11.transform.translation = {200.0f, 0.0f, 200.f};
+  // floor11.transform.scale = {5.f, 1.f,5.f};
+  // floor11.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor11));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor12 =
+  // GameObject::createGameObject(); floor12 .model = lveModel; floor12
+  // .transform.translation = {300.0f, 0.0f, 200.f}; floor12 .transform.scale =
+  // {5.f, 1.f,5.f}; floor12.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor12 ));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor13 =
+  // GameObject::createGameObject(); floor13.model = lveModel;
+  // floor13.transform.translation = {0.0f, 0.5f, 300.f};
+  // floor13.transform.scale = {5.f, 1.f,5.f};
+  // floor13.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor13));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor14 =
+  // GameObject::createGameObject(); floor14.model = lveModel;
+  // floor14.transform.translation = {100.0f, 0.0f, 300.f};
+  // floor14.transform.scale = {5.f, 1.f,5.f};
+  // gameObjects.push_back(std::move(floor14));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor15 =
+  // GameObject::createGameObject(); floor15.model = lveModel;
+  // floor15.transform.translation = {200.0f, 0.0f, 300.f};
+  // floor15.transform.scale = {5.f, 1.f,5.f};
+  // floor15.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor15));
+
+  // lveModel =LveModel::createModelFromFile(device,
+  // "../engine/models/untitled2.obj"); auto floor16 =
+  // GameObject::createGameObject(); floor16.model = lveModel;
+  // floor16.transform.translation = {300.0f, 0.0f, 300.f};
+  // floor16.transform.scale = {5.f, 1.f,5.f};
+  // floor16.color = {0.222,0.343,0.472};
+  // gameObjects.push_back(std::move(floor16));
+
+  lveModel =
+      LveModel::createModelFromFile(device, "../engine/models/sphere.obj");
   auto sphere = GameObject::createGameObject();
   sphere.model = lveModel;
-  // quad.transform.translation = {.0f, .5f, 100.f};
-   sphere.transform.translation = {170.0f, -100.5f, 320.f};
-     sphere.transform.rotation ={90.0f,0.f,0.0f};
 
-sphere.transform.scale = {1.f, 1.f, 1.f};
+  sphere.transform.translation = {200.0, -100.0, 500.0};
+  sphere.transform.scale = {2.0, 2.0, 2.0};
+
+  sphere.color = glm::vec3(1.f, 1.f, 1.f);
   gameObjects.push_back(std::move(sphere));
-      
-//   // smoothVase.transform.scale = {3.f, 1.5f, 3.f};
-
-  
-  //  lveModel = LveModel::createModelFromFile(device, "../engine/models/smooth_vase.obj");
-  // auto smoothVase = GameObject::createGameObject();
-  // smoothVase.model = lveModel;
-  // smoothVase.transform.scale = {50.f, 50.f, 50.f};
-  // smoothVase.transform.rotation ={60.0f,22.5f,0.0f};
-  //  smoothVase.transform.translation = {170.0f, -100.5f, 320.f};
-  // gameObjects.push_back(std::move(smoothVase));
 }
 
 } // namespace lve
