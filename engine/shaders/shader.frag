@@ -25,12 +25,22 @@ layout(push_constant) uniform Push {
                                                                               
 void main()                                                                               
 {                  
-  vec3 directionToLight = ubo.lightPosition - fragPosWorld;
-  float attenuation = 1.0 / dot(directionToLight, directionToLight); // distance squared
+  // vec3 directionToLight = ubo.lightPosition - fragPosWorld;
+  // float attenuation = 1.0 / dot(directionToLight, directionToLight); // distance squared
+  // vec3 lightColor = ubo.lightColor.xyz * ubo.lightColor.w * attenuation;
+  // vec3 ambientLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
+  // vec3 diffuseLight = lightColor * max(dot(normalize(fragNormalWorld), normalize(directionToLight)), 0);
 
-  vec3 lightColor = ubo.lightColor.xyz * ubo.lightColor.w * attenuation;
-  vec3 ambientLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-  vec3 diffuseLight = lightColor * max(dot(normalize(fragNormalWorld), normalize(directionToLight)), 0);
-  //color = vec4((diffuseLight + ambientLight) * fragColor, 1.0);                                                                       
+  // vec3 lightDir   = normalize(ubo.lightPosition - fragPosWorld);
+  // vec3 viewDir    = normalize(vec3(170.0,-10.0,200.0) - fragPosWorld);
+  // vec3 halfwayDir = normalize(lightDir + viewDir);
+  // vec3 reflectDir = reflect(-lightDir, normalize(directionToLight));
+  // float spec = pow(max(dot(normalize(directionToLight), reflectDir), 0.0),8.0);
+  
+  // vec3 specular = lightColor * spec;
+
+  // float lightIntensity = max(dot(fragNormalWorld,  normalize(vec3(70.0, -3.0, -10.0))),0);
+
+  //color = vec4(( specular +(fragColor*lightIntensity)) , 1.0);                                                                       
   color = vec4(0.4,0.4,0.4,1.0);
 }

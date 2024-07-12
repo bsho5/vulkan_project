@@ -22,6 +22,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 view;
   vec4 ambientLightColor; // w is intensity
   vec3 lightPosition;
+  vec3 cameraPosition;
   vec4 lightColor;
 } ubo;
 
@@ -35,11 +36,14 @@ layout(push_constant) uniform Push {
                                                 
                                                                
 void main()                                                                                
-{                                                                                          
-  vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
-  gl_Position = ubo.projection * ubo.view * positionWorld;
-   fragNormalWorld = normalize(mat3(push.normalMatrix) * normalize(vec3(-1.0,-1.0,-1.0)));
-  fragPosWorld = positionWorld.xyz;
-  fragColor = color;
+{                         
+  vec3 position1 =position;
+  // position1.x= floor(gl_VertexIndex / 2.0);
+  // position1.z = mod(gl_VertexIndex,2.0)        ;                                            
+  vec4 positionWorld = push.modelMatrix *vec4(position1, 1.0);
+  gl_Position = ubo.projection*ubo.view *  positionWorld;
+  // fragNormalWorld = normalize(mat3(push.normalMatrix) * normalize(vec3(0.0,-1.0,0.0)));
+  //fragPosWorld = positionWorld.xyz;
+  fragColor = vec3(0.222,0.343,0.572);
 
 }
