@@ -5,6 +5,7 @@ layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragPosWorld;
 layout (location = 2) in vec3 fragNormalWorld;
 layout (location = 3) in vec3 normalOut;
+layout (location = 4) in vec4 ioEyeSpacePosition;
                                                                         
 layout ( location = 0 ) out vec4 color; 
 
@@ -27,6 +28,36 @@ layout(push_constant) uniform Push {
 
 } push;
 
+struct FogParameters
+{
+	vec3 color;
+	float linearStart;
+	float linearEnd;
+	float density;
+	
+	int equation;
+	bool isEnabled;
+};
+
+
+float getFogFactor(FogParameters params, float fogCoordinate)
+{
+	float result = 0.0;
+	if(params.equation == 0)
+	{
+		float fogLength = params.linearEnd - params.linearStart;
+		result = (params.linearEnd - fogCoordinate) / fogLength;
+	}
+	else if(params.equation == 1) {
+		result = exp(-params.density * fogCoordinate);
+	}
+	else if(params.equation == 2) {
+		result = exp(-pow(params.density * fogCoordinate, 2.0));
+	}
+	
+	result = 1.0 - clamp(result, 0.0, 1.0);
+	return result;
+}
                                                                               
 void main()                                                                               
 {
@@ -54,7 +85,9 @@ vec3 specular = specularStrength * spec * ubo.lightColor.xyz;
 
 
 color = vec4((fragColor*(diffuseLight+ambientLight+specular)), 1.0);  
-
-                                                                   
+// FogParameters fogParams = FogParameters(vec3(0.05,0.05,0.05),200.0,500.0,0.1,0,true);
+// float fogCoordinate = abs(ioEyeSpacePosition.z / ioEyeSpacePosition.w);
+// color = mix(color, vec4(fogParams.color, 1.0), getFogFactor(fogParams, fogCoordinate));
+                                                      
 
 }

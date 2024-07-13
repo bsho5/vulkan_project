@@ -11,7 +11,8 @@ layout(location = 4) in float t;
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
- layout(location = 3) out vec3 normalOut;
+layout(location = 3) out vec3 normalOut;
+layout(location = 4) out vec4 ioEyeSpacePosition;
 
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
@@ -164,4 +165,5 @@ void main()
     fragPosWorld = positionWorld.xyz;
     normalOut = normalize(mat3(push.normalMatrix) * normalize(vec3(height_normal.x,height_normal.y,2.0))); // different normal for diffuse color cuz it looks better
     fragColor =vec3(0.004f, 0.016f, 0.047f); // sea color
+	ioEyeSpacePosition =  push.modelMatrix *ubo.view * vec4(position, 1.0);
 }
