@@ -6,6 +6,8 @@
 #include "window.hpp"
 #include <vector>
 #include <vulkan/vulkan_core.h>
+#include "lve_texture.hpp"
+
 
 namespace lve {
 class App {
@@ -32,7 +34,8 @@ private:
   Renderer renderer{window, device};
 
   std::unique_ptr<LveDescriptorPool> globalPool{};
-
+  std::unique_ptr<Texture> texture{};
+  std::unique_ptr<Texture> texture2{};
   std::vector<GameObject> gameObjects;
 };
 } // namespace lve

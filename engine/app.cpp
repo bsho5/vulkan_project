@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <cstdio>
 
 
 // libs
@@ -37,6 +38,7 @@ App::App() {
                    .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
                    .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                 SwapChain::MAX_FRAMES_IN_FLIGHT)
+                   .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
                    .build();
   loadGameObjects();
 }
@@ -50,10 +52,26 @@ void App::run() {
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
     uboBuffers[i]->map();
   }
+  
+  texture = std::make_unique<Texture>(device,"../engine/textures/image.png");
+  texture2 = std::make_unique<Texture>(device, "../engine/textures/meme.png");
+
+  VkDescriptorImageInfo imageInfo = {};
+  imageInfo.sampler = texture->getSampler();
+  imageInfo.imageView = texture->getImageView();
+  imageInfo.imageLayout = texture->getImageLayout();
+
+   VkDescriptorImageInfo imageInfo2 = {};
+  imageInfo2.sampler = texture2->getSampler();
+  imageInfo2.imageView = texture2->getImageView();
+  imageInfo2.imageLayout = texture2->getImageLayout();
 
   auto globalSetLayout = LveDescriptorSetLayout::Builder(device)
                              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                          VK_SHADER_STAGE_ALL_GRAPHICS)
+                             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+               //              .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+
                              .build();
 
   std::vector<VkDescriptorSet> globalDescriptorSets(
@@ -62,10 +80,11 @@ void App::run() {
     auto bufferInfo = uboBuffers[i]->descriptorInfo();
     LveDescriptorWriter(*globalSetLayout, *globalPool)
         .writeBuffer(0, &bufferInfo)
+         .writeImage(1, &imageInfo)
+        // .writeImage(2, &imageInfo2)
         .build(globalDescriptorSets[i]);
   }
-
-  SimpleRenderSystem simpleRenderSystem{
+ SimpleRenderSystem simpleRenderSystem{
       device, renderer.getSwapChainRenderPass(),
       globalSetLayout->getDescriptorSetLayout()};
 
@@ -271,6 +290,15 @@ void App::loadGameObjects() {
 
   sphere.color = glm::vec3(1.f, 1.f, 1.f);
   gameObjects.push_back(std::move(sphere));
+    lveModel =
+      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
+  auto quad = GameObject::createGameObject();
+  quad.model = lveModel;
+  quad.transform.translation = {100.0f, -300.0f, 100.f};
+  quad.transform.scale = {20.f, 20.f, 20.f};
+  quad.transform.rotation = {90.f,0.f,0.f};
+  quad.color = glm::vec3(1.f, 1.f, 1.f);
+  gameObjects.push_back(std::move(quad));
 }
 
 } // namespace lve
