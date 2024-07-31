@@ -17,7 +17,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec4 lightColor;
 } ubo;
 layout(set = 0, binding = 1) uniform sampler2D image;
-layout(set = 0, binding = 2) uniform sampler2D image2;
+// layout(set = 0, binding = 2) uniform sampler2D image2;
 layout(push_constant) uniform Push {
 
   mat4 modelMatrix;
@@ -46,6 +46,6 @@ void main()
 
   //color = vec4(( specular +(fragColor*lightIntensity)) , 1.0);    
   
- vec3 imageColor = texture(image2, fragUv).rgb;
+ vec3 imageColor = texture(image, fragUv).rgb;
   color = vec4(imageColor,1.0);
 }
