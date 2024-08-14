@@ -2,6 +2,7 @@
 #include "descriptors.hpp"
 #include "device.hpp"
 #include "game_object.hpp"
+#include "lve_cubemap.hpp"
 #include "renderer.hpp"
 #include "window.hpp"
 #include <vector>
@@ -34,8 +35,8 @@ private:
   Renderer renderer{window, device};
 
   std::unique_ptr<LveDescriptorPool> globalPool{};
+  std::unique_ptr<CubeMap> cubemap{};
   std::unique_ptr<Texture> texture{};
-  std::unique_ptr<Texture> texture2{};
   std::vector<GameObject> gameObjects;
 };
 } // namespace lve

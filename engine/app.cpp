@@ -4,13 +4,17 @@
 #include "glm/fwd.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "lib/models/tiny_object.h"
+#include "lve_cubemap.hpp"
+
+#include "lve_texture.hpp"
 #include "simple_render_system.hpp"
 
 // std
 
 #include <cassert>
 #include <chrono>
-#include <cstdio>
+
+#include <vulkan/vulkan_core.h>
 
 
 // libs
@@ -52,35 +56,41 @@ void App::run() {
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
     uboBuffers[i]->map();
   }
-  
-  texture = std::make_unique<Texture>(device,"../engine/textures/image.png");
-  texture2 = std::make_unique<Texture>(device, "../engine/textures/meme.png");
 
+  cubemap = std::make_unique<CubeMap>(device);
+  
+  VkDescriptorImageInfo imageInfos[2] ={};
+
+  VkDescriptorImageInfo cubemapImageInfo = {};
+  cubemapImageInfo.sampler = cubemap->getSampler();
+  cubemapImageInfo.imageView = cubemap->getImageView();
+  cubemapImageInfo.imageLayout = cubemap->getImageLayout();
+
+ 
+  texture = std::make_unique<Texture>(device,"../engine/textures/moon3.png");
+  
+  
   VkDescriptorImageInfo imageInfo = {};
   imageInfo.sampler = texture->getSampler();
   imageInfo.imageView = texture->getImageView();
   imageInfo.imageLayout = texture->getImageLayout();
-
-   VkDescriptorImageInfo imageInfo2 = {};
-  imageInfo2.sampler = texture2->getSampler();
-  imageInfo2.imageView = texture2->getImageView();
-  imageInfo2.imageLayout = texture2->getImageLayout();
+ 
 
   auto globalSetLayout = LveDescriptorSetLayout::Builder(device)
                              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                          VK_SHADER_STAGE_ALL_GRAPHICS)
-                             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-               //              .addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+                             .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)                        
 
                              .build();
 
   std::vector<VkDescriptorSet> globalDescriptorSets(
       SwapChain::MAX_FRAMES_IN_FLIGHT);
+     
   for (int i = 0; i < globalDescriptorSets.size(); i++) {
     auto bufferInfo = uboBuffers[i]->descriptorInfo();
     LveDescriptorWriter(*globalSetLayout, *globalPool)
         .writeBuffer(0, &bufferInfo)
-         .writeImage(1, &imageInfo)
+         .writeImage(1, &cubemapImageInfo)
         // .writeImage(2, &imageInfo2)
         .build(globalDescriptorSets[i]);
   }
@@ -93,7 +103,7 @@ void App::run() {
   int x = 0;
   auto viewerObject = GameObject::createGameObject();
 
-  // viewerObject.transform.translation.y = -10.f;
+  // viewerObject.transform.translation.y = -200.f;
   // viewerObject.transform.translation.x = -50.f;
 
   KeyboardMovementController cameraController{};
@@ -118,7 +128,7 @@ void App::run() {
 
     float aspect = renderer.getAspectRatio();
     // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
-    camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+    camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10000.f);
 
     if (auto commandBuffer = renderer.beginFrame()) {
 
@@ -149,7 +159,7 @@ void App::run() {
 
 
 void App::loadGameObjects() {
-
+  
   std::shared_ptr<LveModel> lveModel =
       LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
   auto floor = GameObject::createGameObject();
@@ -290,15 +300,15 @@ void App::loadGameObjects() {
 
   sphere.color = glm::vec3(1.f, 1.f, 1.f);
   gameObjects.push_back(std::move(sphere));
-    lveModel =
-      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
-  auto quad = GameObject::createGameObject();
-  quad.model = lveModel;
-  quad.transform.translation = {100.0f, -300.0f, 100.f};
-  quad.transform.scale = {20.f, 20.f, 20.f};
-  quad.transform.rotation = {90.f,0.f,0.f};
-  quad.color = glm::vec3(1.f, 1.f, 1.f);
-  gameObjects.push_back(std::move(quad));
+  //   lveModel =
+  //     LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
+  // auto quad = GameObject::createGameObject();
+  // quad.model = lveModel;
+  // quad.transform.translation = {100.0f, -300.0f, 100.f};
+  // quad.transform.scale = {20.f, 20.f, 20.f};
+  // quad.transform.rotation = {90.f,0.f,0.f};
+  // quad.color = glm::vec3(1.f, 1.f, 1.f);
+  // gameObjects.push_back(std::move(quad));
 }
 
 } // namespace lve
