@@ -16,15 +16,17 @@ layout(location = 4) in float t;
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragPosWorld;
 layout(location = 2) out vec3 fragNormalWorld;
-layout(location = 3) out vec2 fragUv;
+layout(location = 3) out vec3 fragUvw;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
   mat4 view;
   vec4 ambientLightColor; // w is intensity
   vec3 lightPosition;
+  mat4 invViewMatrix;
   vec3 cameraPosition;
   vec4 lightColor;
+  float t;
 } ubo;
 
 layout(push_constant) uniform Push {
@@ -34,18 +36,74 @@ layout(push_constant) uniform Push {
 } push;
  
 
-                                                
+vec3 positions[36] = vec3[](
+
+    // right face
+
+    vec3( 1.0, -1.0, -1.0),
+    vec3( 1.0, -1.0,  1.0),
+    vec3( 1.0,  1.0,  1.0),
+    vec3( 1.0,  1.0,  1.0),
+    vec3( 1.0,  1.0, -1.0),
+    vec3( 1.0, -1.0, -1.0),
+
+    // left face
+    
+    vec3(-1.0, -1.0,  1.0),
+    vec3(-1.0, -1.0, -1.0),
+    vec3(-1.0,  1.0, -1.0),
+    vec3(-1.0,  1.0, -1.0),
+    vec3(-1.0,  1.0,  1.0),
+    vec3(-1.0, -1.0,  1.0),
+
+
+    // top face
+
+    vec3(-1.0,  1.0, -1.0),
+    vec3( 1.0,  1.0, -1.0),
+    vec3( 1.0,  1.0,  1.0),
+    vec3( 1.0,  1.0,  1.0),
+    vec3(-1.0,  1.0,  1.0),
+    vec3(-1.0,  1.0, -1.0),
+
+    // bottom face
+
+    vec3(-1.0, -1.0, -1.0),
+    vec3(-1.0, -1.0,  1.0),
+    vec3( 1.0, -1.0, -1.0),
+    vec3( 1.0, -1.0, -1.0),
+    vec3(-1.0, -1.0,  1.0),
+    vec3( 1.0, -1.0,  1.0),
+
+
+    // front face
+
+    vec3(-1.0,  1.0, -1.0),
+    vec3(-1.0, -1.0, -1.0),
+    vec3( 1.0, -1.0, -1.0),
+    vec3( 1.0, -1.0, -1.0),
+    vec3( 1.0,  1.0, -1.0),
+    vec3(-1.0,  1.0, -1.0),
+  
+    // back face
+    
+    vec3(-1.0, -1.0,  1.0),
+    vec3(-1.0,  1.0,  1.0),
+    vec3( 1.0,  1.0,  1.0),
+    vec3( 1.0,  1.0,  1.0),
+    vec3( 1.0, -1.0,  1.0),
+    vec3(-1.0, -1.0,  1.0)
+);                                             
                                                                
 void main()                                                                                
 {                         
-  vec3 position1 =position;
-  // position1.x= floor(gl_VertexIndex / 2.0);
-  // position1.z = mod(gl_VertexIndex,2.0)        ;                                            
-  vec4 positionWorld = push.modelMatrix *vec4(position1, 1.0);
-  gl_Position = ubo.projection*ubo.view *  positionWorld;
-  // fragNormalWorld = normalize(mat3(push.normalMatrix) * normalize(vec3(0.0,-1.0,0.0)));
-  //fragPosWorld = positionWorld.xyz;
+  vec3 position =1000*positions[gl_VertexIndex];
+  // position.y -=980;                                         
+  vec4 positionWorld =vec4(position, 1.0);
+  mat4 view = mat4(mat3(ubo.view));
+  gl_Position = ubo.projection * view *  positionWorld;
+  fragPosWorld = (view*positionWorld).xyz;
   fragColor = vec3(0.222,0.343,0.572);
-  fragUv = uv;
+  fragUvw = normalize(position);
 
 }

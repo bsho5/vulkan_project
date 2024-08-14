@@ -3,7 +3,7 @@
 layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragPosWorld;
 layout (location = 2) in vec3 fragNormalWorld;
-layout (location = 3) in vec2 fragUv;
+layout (location = 3) in vec3 fragUvw;
 
 
                                                                         
@@ -14,10 +14,13 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 view;
   vec4 ambientLightColor; // w is intensity
   vec3 lightPosition;
+  mat4 invViewMatrix;
+  vec3 cameraPosition;
   vec4 lightColor;
+  float t;
 } ubo;
-layout(set = 0, binding = 1) uniform sampler2D image;
-// layout(set = 0, binding = 2) uniform sampler2D image2;
+layout(set = 0, binding = 1) uniform samplerCube image;
+layout(set = 1, binding = 1) uniform sampler2D image2;
 layout(push_constant) uniform Push {
 
   mat4 modelMatrix;
@@ -25,27 +28,33 @@ layout(push_constant) uniform Push {
 
 } push;
 
+vec3 rotationMatrixToEulerAngles(mat3 R) {
+    float sy = sqrt(R[0][0] * R[0][0] + R[1][0] * R[1][0]);
+
+    bool singular = sy < 1e-6;
+
+    float x, y, z;
+    if (!singular) {
+        x = atan(R[2][1], R[2][2]);
+        y = atan(-R[2][0], sy);
+        z = atan(R[1][0], R[0][0]);
+    } else {
+        x = atan(-R[1][2], R[1][1]);
+        y = atan(-R[2][0], sy);
+        z = 0.0;
+    }
+
+    return vec3(x, y, z); // Returns pitch (x), yaw (y), roll (z)
+}
                                                                               
 void main()                                                                               
 {                  
-  // vec3 directionToLight = ubo.lightPosition - fragPosWorld;
-  // float attenuation = 1.0 / dot(directionToLight, directionToLight); // distance squared
-  // vec3 lightColor = ubo.lightColor.xyz * ubo.lightColor.w * attenuation;
-  // vec3 ambientLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-  // vec3 diffuseLight = lightColor * max(dot(normalize(fragNormalWorld), normalize(directionToLight)), 0);
-
-  // vec3 lightDir   = normalize(ubo.lightPosition - fragPosWorld);
-  // vec3 viewDir    = normalize(vec3(170.0,-10.0,200.0) - fragPosWorld);
-  // vec3 halfwayDir = normalize(lightDir + viewDir);
-  // vec3 reflectDir = reflect(-lightDir, normalize(directionToLight));
-  // float spec = pow(max(dot(normalize(directionToLight), reflectDir), 0.0),8.0);
-  
-  // vec3 specular = lightColor * spec;
-
-  // float lightIntensity = max(dot(fragNormalWorld,  normalize(vec3(70.0, -3.0, -10.0))),0);
-
-  //color = vec4(( specular +(fragColor*lightIntensity)) , 1.0);    
-  
- vec3 imageColor = texture(image, fragUv).rgb;
-  color = vec4(imageColor,1.0);
+   
+  // mat3 view = mat3(ubo.view);
+  // vec3 rotation =  rotationMatrixToEulerAngles(view);
+  // vec3 direction = normalize(fragPosWorld -rotation );
+ vec3 flippedTexCoord = vec3(-fragUvw.x, -fragUvw.y, fragUvw.z);
+  vec3 imageColor = texture(image, flippedTexCoord).rgb;
+  imageColor = pow(imageColor, vec3(2.2)); // Convert sRGB to linear space
+  color = vec4(imageColor, 1.0f);
 }
