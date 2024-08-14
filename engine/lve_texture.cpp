@@ -4,7 +4,7 @@
 #include <vulkan/vulkan_core.h>
 #include <stdexcept>
 #include "device.hpp"
-#define STB_IMAGE_IMPLEMENTATION
+// #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb/stb_image.h"
 #include "buffer.hpp"
 
