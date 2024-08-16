@@ -62,7 +62,7 @@ void computeWaterHeightAndDerivatives(vec3 position1, float time, Wave waves[32]
                     
         // Compute the wave phase
         vec3 d = waves[i].direction; // wave direction 
-        vec2 xzDirection = vec2(waves[i].direction.x,waves[i].direction.z); // wave direction in x and z planes    
+        vec2 xzDirection = vec2(d.x,d.z); // wave direction in x and z planes    
         float xz = ( position1.x *d.x) +(position1.z *d.z); // the dot product of the wave direction in x and z planes and x,z points  
         float k = 2.5; // peaks sharpener controller
         float phase = (xz *w) + (time *phaseConstant);
@@ -79,10 +79,10 @@ void computeWaterHeightAndDerivatives(vec3 position1, float time, Wave waves[32]
        
       
 
-        dWaveHeight = vec3 (dxz.x,dxz.y,0.0);
+        dWaveHeight =  vec3 (-1.0*dxz.x,-1.0*dxz.y,1.0);
+       // vec3 (dxz.x,dxz.y,1.0);
        // vec3 xNormal = vec3(1.0 , 0.0,dxz.x );
        // vec3 zNormal = vec3(0.0 , 1.0,dxz.y );
-       //vec3 (1.0*dx,1.0*dz,1.0);
        //cross((xNormal),(zNormal));
        
        dHeight += dWaveHeight;
@@ -164,6 +164,8 @@ void main()
     fragNormalWorld = normalize(mat3(push.normalMatrix) * normalize(height_normal));
     fragPosWorld = positionWorld.xyz;
     normalOut = normalize(mat3(push.normalMatrix) * normalize(vec3(height_normal.x,height_normal.y,2.0))); // different normal for diffuse color cuz it looks better
-    fragColor =vec3(0.004f, 0.016f, 0.047f); // sea color
+    fragColor =   
+    // 10*vec3(0.55f, 0.79f, 0.97f); // sea color
+    5*vec3(0.0004f, 0.016f, 0.047f); // sea color
 	ioEyeSpacePosition =  push.modelMatrix *ubo.view * vec4(position, 1.0);
 }
