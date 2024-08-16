@@ -67,13 +67,13 @@ void App::run() {
   cubemapImageInfo.imageLayout = cubemap->getImageLayout();
 
  
-  texture = std::make_unique<Texture>(device,"../engine/textures/moon3.png");
+  // texture = std::make_unique<Texture>(device,"../engine/textures/moon3.png");
   
   
-  VkDescriptorImageInfo imageInfo = {};
-  imageInfo.sampler = texture->getSampler();
-  imageInfo.imageView = texture->getImageView();
-  imageInfo.imageLayout = texture->getImageLayout();
+  // VkDescriptorImageInfo imageInfo = {};
+  // imageInfo.sampler = texture->getSampler();
+  // imageInfo.imageView = texture->getImageView();
+  // imageInfo.imageLayout = texture->getImageLayout();
  
 
   auto globalSetLayout = LveDescriptorSetLayout::Builder(device)
@@ -161,21 +161,24 @@ void App::run() {
 void App::loadGameObjects() {
   
   std::shared_ptr<LveModel> lveModel =
-      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
+      LveModel::createModelFromFile(device, "../engine/models/plane.obj");
   auto floor = GameObject::createGameObject();
   floor.model = lveModel;
-  // floor.transform.translation = {0.0f, 0.5f, 200.f};
-  floor.transform.scale = {5.f, 1.f, 5.f};
-
+  floor.transform.translation = {0.0f, 0.0f, 0.0f};
+  floor.transform.scale = {50.f, 1.f, 50.f};
+ // floor.transform.rotation.x = 20.f;
+  //floor.transform.rotation.z = 20.f;
   floor.color = {0.222, 0.343, 0.472};
   gameObjects.push_back(std::move(floor));
 
   lveModel =
-      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
+      LveModel::createModelFromFile(device, "../engine/models/plane.obj");
   auto floor2 = GameObject::createGameObject();
   floor2.model = lveModel;
   floor2.transform.translation = {100.0f, 0.0f, 0.f};
-  floor2.transform.scale = {5.f, 1.f, 5.f};
+  floor2.transform.scale = {50.f, 1.f, 50.f};
+  //floor2.transform.rotation.x = 20.f;
+  //floor2.transform.rotation.z = 20.f;
   gameObjects.push_back(std::move(floor2));
 
   // lveModel =LveModel::createModelFromFile(device,
@@ -196,20 +199,20 @@ void App::loadGameObjects() {
   // gameObjects.push_back(std::move(floor4));
 
   lveModel =
-      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
+      LveModel::createModelFromFile(device, "../engine/models/plane.obj");
   auto floor5 = GameObject::createGameObject();
   floor5.model = lveModel;
-  floor5.transform.translation = {0.0f, 0.5f, 100.f};
-  floor5.transform.scale = {5.f, 1.f, 5.f};
+  floor5.transform.translation = {0.0f, 0.0f, 100.f};
+  floor5.transform.scale ={50.f, 1.f, 50.f};
   floor5.color = {0.222, 0.343, 0.472};
   gameObjects.push_back(std::move(floor5));
 
   lveModel =
-      LveModel::createModelFromFile(device, "../engine/models/untitled2.obj");
+      LveModel::createModelFromFile(device, "../engine/models/plane.obj");
   auto floor6 = GameObject::createGameObject();
   floor6.model = lveModel;
-  floor6.transform.translation = {100.0f, 0.0f, 100.f};
-  floor6.transform.scale = {5.f, 1.f, 5.f};
+  floor6.transform.translation = {100.0f, 0.f, 100.f};
+  floor6.transform.scale = {50.f, 1.f, 50.f};
   gameObjects.push_back(std::move(floor6));
 
   // lveModel =LveModel::createModelFromFile(device,
@@ -295,8 +298,8 @@ void App::loadGameObjects() {
   auto sphere = GameObject::createGameObject();
   sphere.model = lveModel;
 
-  sphere.transform.translation = {200.0, -100.0, 500.0};
-  sphere.transform.scale = {2.0, 2.0, 2.0};
+  // sphere.transform.translation = {200.0, -100.0, 500.0};
+  // sphere.transform.scale = {2.0, 2.0, 2.0};
 
   sphere.color = glm::vec3(1.f, 1.f, 1.f);
   gameObjects.push_back(std::move(sphere));
