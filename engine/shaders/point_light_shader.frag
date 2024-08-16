@@ -67,7 +67,7 @@ vec3 lightDir = normalize((ubo.lightPosition) - (fragPosWorld)); // light Direct
 // diffuse lighting
 float attenuation = 1.0 / dot(lightDir, lightDir); // distance squared
 vec3 lightColor = ubo.lightColor.xyz * ubo.lightColor.w * (attenuation);
-vec3 diffuseLight =(lightColor * max(dot((normalOut), (lightDir)), 0));
+vec3 diffuseLight =(lightColor * max(dot((fragNormalWorld), (lightDir)), 0));
 
 //ambient lighting
 vec3 ambientLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
