@@ -9,6 +9,8 @@ layout (location = 4) in vec4 ioEyeSpacePosition;
                                                                         
 layout ( location = 0 ) out vec4 color; 
 
+layout(set = 0, binding = 1) uniform samplerCube skyboxTexture;
+
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
   mat4 view;
@@ -79,12 +81,14 @@ vec3 viewDir    = normalize(cameraPosWorld- (fragPosWorld));
 vec3 halfwayDir = normalize(lightDir + viewDir);
 float specularStrength = 4.0;
 float shininess = 32.0;
-float spec = pow(max(dot(fragNormalWorld, halfwayDir), 0.0), shininess);
+float spec = pow(max(dot(normalOut, halfwayDir), 0.0), shininess);
 vec3 specular = specularStrength * spec * ubo.lightColor.xyz;  
 
+// vec3 reflectDir = reflect(viewDir, normalize(fragNormalWorld));
+// vec3 reflectedColor = texture(skyboxTexture, reflectDir).rgb;
 
+ color = vec4((fragColor*(diffuseLight+ambientLight )), 1.0);  
 
-color = vec4((fragColor*(diffuseLight+ambientLight+specular)), 1.0);  
 // FogParameters fogParams = FogParameters(vec3(0.05,0.05,0.05),200.0,500.0,0.1,0,true);
 // float fogCoordinate = abs(ioEyeSpacePosition.z / ioEyeSpacePosition.w);
 // color = mix(color, vec4(fogParams.color, 1.0), getFogFactor(fogParams, fogCoordinate));

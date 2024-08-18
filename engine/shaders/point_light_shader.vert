@@ -163,9 +163,9 @@ void main()
 
     fragNormalWorld = normalize(mat3(push.normalMatrix) * normalize(height_normal));
     fragPosWorld = positionWorld.xyz;
-    normalOut = normalize(mat3(push.normalMatrix) * normalize(vec3(height_normal.x,height_normal.y,2.0))); // different normal for diffuse color cuz it looks better
+    normalOut = normalize(mat3(push.normalMatrix) * normalize(vec3(height_normal.x,height_normal.y,8.0))); // different normal for diffuse color cuz it looks better
     fragColor =   
     // 10*vec3(0.55f, 0.79f, 0.97f); // sea color
-    5*vec3(0.0004f, 0.016f, 0.047f); // sea color
+    10*vec3(0.0004f, 0.016f, 0.047f); // sea color
 	ioEyeSpacePosition =  push.modelMatrix *ubo.view * vec4(position, 1.0);
 }
