@@ -23,6 +23,9 @@ public:
 
   void renderGameObjects(FrameInfo &frameInfo,
                          std::vector<GameObject> &gameObjects);
+  void renderSkyBox(FrameInfo &frameInfo);
+  void renderOcean(FrameInfo &frameInfo);
+  void renderMoon(FrameInfo &frameInfo);
 
 private:
   void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
@@ -31,9 +34,9 @@ private:
 
   LveDevice &lveDevice;
 
-  std::unique_ptr<Pipeline> lvePipeline;
-  std::unique_ptr<Pipeline> floorPipeline;
-  std::unique_ptr<Pipeline> pointPipeline;
+  std::unique_ptr<Pipeline> skyBoxPipeline;
+  std::unique_ptr<Pipeline> oceanPipeline;
+  std::unique_ptr<Pipeline> moonPipeline;
   VkPipelineLayout pipelineLayout;
 };
 } // namespace lve

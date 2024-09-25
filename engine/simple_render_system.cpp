@@ -1,7 +1,6 @@
 #include "simple_render_system.hpp"
 #include "glm/fwd.hpp"
 
-
 // libs
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -63,30 +62,26 @@ void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
   Pipeline::defaultPipelineConfigInfo(pipelineConfig);
   pipelineConfig.renderPass = renderPass;
   pipelineConfig.pipelineLayout = pipelineLayout;
-  lvePipeline = std::make_unique<Pipeline>(
-      lveDevice, "../engine/shaders/shader.vert.spv",
-      "../engine/shaders/shader.frag.spv", pipelineConfig);
-  floorPipeline = std::make_unique<Pipeline>(
-      lveDevice, "../engine/shaders/floor_shader.vert.spv",
-      "../engine/shaders/floor_shader.frag.spv", pipelineConfig);
-        pointPipeline = std::make_unique<Pipeline>(
-      lveDevice, "../engine/shaders/point_light_shader.vert.spv",
-      "../engine/shaders/point_light_shader.frag.spv", pipelineConfig);
+  skyBoxPipeline = std::make_unique<Pipeline>(
+      lveDevice, "../engine/shaders/skybox_shader.vert.spv",
+      "../engine/shaders/skybox_shader.frag.spv", pipelineConfig);
+  moonPipeline = std::make_unique<Pipeline>(
+      lveDevice, "../engine/shaders/moon_shader.vert.spv",
+      "../engine/shaders/moon_shader.frag.spv", pipelineConfig);
+  oceanPipeline = std::make_unique<Pipeline>(
+      lveDevice, "../engine/shaders/ocean_shader.vert.spv",
+      "../engine/shaders/ocean_shader.frag.spv", pipelineConfig);
 }
 
 void SimpleRenderSystem::renderGameObjects(
     FrameInfo &frameInfo, std::vector<GameObject> &gameObjects) {
 
-  //lvePipeline->bind(frameInfo.commandBuffer);
+  moonPipeline->bind(frameInfo.commandBuffer);
   vkCmdBindDescriptorSets(frameInfo.commandBuffer,
                           VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                           &frameInfo.globalDescriptorSet, 0, nullptr);
-
+  SimplePushConstantData push{};
   for (auto &obj : gameObjects) {
-  
-if (obj.color == glm::vec3(1.f, 1.f, 1.f)) {
-  lvePipeline->bind(frameInfo.commandBuffer);
- SimplePushConstantData push{};
     push.modelMatrix = obj.transform.mat4();
 
     push.normalMatrix = obj.transform.normalMatrix();
@@ -95,23 +90,50 @@ if (obj.color == glm::vec3(1.f, 1.f, 1.f)) {
                            VK_SHADER_STAGE_FRAGMENT_BIT,
                        0, sizeof(SimplePushConstantData), &push);
     obj.model->bind(frameInfo.commandBuffer);
-    obj.model->draw(frameInfo.commandBuffer);
-}else {
-   pointPipeline->bind(frameInfo.commandBuffer);
- SimplePushConstantData push{};
-    push.modelMatrix = obj.transform.mat4();
 
-    push.normalMatrix = obj.transform.normalMatrix();
-    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT |
-                           VK_SHADER_STAGE_FRAGMENT_BIT,
-                       0, sizeof(SimplePushConstantData), &push);
-    obj.model->bind(frameInfo.commandBuffer);
     obj.model->draw(frameInfo.commandBuffer);
-}
-   
   }
+}
 
+void SimpleRenderSystem::renderSkyBox(FrameInfo &frameInfo) {
+  skyBoxPipeline->bind(frameInfo.commandBuffer);
+  vkCmdBindDescriptorSets(frameInfo.commandBuffer,
+                          VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+                          &frameInfo.globalDescriptorSet, 0, nullptr);
+  SimplePushConstantData push{};
+    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT |
+                           VK_SHADER_STAGE_FRAGMENT_BIT,
+                       0, sizeof(SimplePushConstantData), &push);
+  
+  vkCmdDraw(frameInfo.commandBuffer, 36, 1, 0, 0);
+}
+
+void SimpleRenderSystem::renderOcean(FrameInfo &frameInfo) {
+  oceanPipeline->bind(frameInfo.commandBuffer);
+  vkCmdBindDescriptorSets(frameInfo.commandBuffer,
+                          VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+                          &frameInfo.globalDescriptorSet, 0, nullptr);
+  SimplePushConstantData push{};
+    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT |
+                           VK_SHADER_STAGE_FRAGMENT_BIT,
+                       0, sizeof(SimplePushConstantData), &push);
+  
+  vkCmdDraw(frameInfo.commandBuffer, 6291456, 1, 0, 0);
+}
+void SimpleRenderSystem::renderMoon(FrameInfo &frameInfo) {
+    moonPipeline->bind(frameInfo.commandBuffer);
+  vkCmdBindDescriptorSets(frameInfo.commandBuffer,
+                          VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+                          &frameInfo.globalDescriptorSet, 0, nullptr);
+  SimplePushConstantData push{};
+    vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT |
+                           VK_SHADER_STAGE_FRAGMENT_BIT,
+                       0, sizeof(SimplePushConstantData), &push);
+
+  vkCmdDraw(frameInfo.commandBuffer, 36, 1, 0, 0);
 }
 
 } // namespace lve
