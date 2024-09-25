@@ -83,10 +83,10 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilePath,
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   vertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  vertexInputInfo.vertexAttributeDescriptionCount =static_cast<uint32_t>( attributeDescription.size());
-  vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>( bindingDescription.size());
-  vertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
-  vertexInputInfo.pVertexBindingDescriptions = bindingDescription.data();
+  vertexInputInfo.vertexAttributeDescriptionCount =0;
+  vertexInputInfo.vertexBindingDescriptionCount = 0;
+  vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+  vertexInputInfo.pVertexBindingDescriptions =nullptr;
 
   VkGraphicsPipelineCreateInfo pipelineInfo{};
   pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
