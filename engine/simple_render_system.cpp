@@ -63,14 +63,14 @@ void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
   pipelineConfig.renderPass = renderPass;
   pipelineConfig.pipelineLayout = pipelineLayout;
   skyBoxPipeline = std::make_unique<Pipeline>(
-      lveDevice, "../engine/shaders/skybox_shader.vert.spv",
-      "../engine/shaders/skybox_shader.frag.spv", pipelineConfig);
+      lveDevice, "../engine/shaders/spv/skybox_shader.vert.spv",
+      "../engine/shaders/spv/skybox_shader.frag.spv", pipelineConfig);
   moonPipeline = std::make_unique<Pipeline>(
-      lveDevice, "../engine/shaders/moon_shader.vert.spv",
-      "../engine/shaders/moon_shader.frag.spv", pipelineConfig);
+      lveDevice, "../engine/shaders/spv/moon_shader.vert.spv",
+      "../engine/shaders/spv/moon_shader.frag.spv", pipelineConfig);
   oceanPipeline = std::make_unique<Pipeline>(
-      lveDevice, "../engine/shaders/ocean_shader.vert.spv",
-      "../engine/shaders/ocean_shader.frag.spv", pipelineConfig);
+      lveDevice, "../engine/shaders/spv/ocean_shader.vert.spv",
+      "../engine/shaders/spv/ocean_shader.frag.spv", pipelineConfig);
 }
 
 void SimpleRenderSystem::renderGameObjects(

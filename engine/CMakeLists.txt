@@ -15,17 +15,18 @@ set(CMAKE_CXX_STANDARD 17)  # Specify the C++ standard (11, 14, 17, 20, etc.)
 set(CMAKE_CXX_STANDARD_REQUIRED True)  # Ensure the standard is required
 set(CMAKE_CXX_EXTENSIONS OFF)  # Disable compiler-specific extensions
 set(SHADER_DIR shaders)
+set(SPV spv)
 file(GLOB SHADERS ${SHADER_DIR}/*.vert ${SHADER_DIR}/*.frag ${SHADER_DIR}/*.comp ${SHADER_DIR}/*.geom ${SHADER_DIR}/*.tesc ${SHADER_DIR}/*.tese ${SHADER_DIR}/*.mesh ${SHADER_DIR}/*.task ${SHADER_DIR}/*.rgen ${SHADER_DIR}/*.rchit ${SHADER_DIR}/*.rmiss)
 
 find_package(Vulkan)
 
 foreach(SHADER IN LISTS SHADERS)
     get_filename_component(FILENAME ${SHADER} NAME)
-    add_custom_command(OUTPUT ../engine/${SHADER_DIR}/${FILENAME}.spv
-        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ${SHADER} -o ../engine/${SHADER_DIR}/${FILENAME}.spv
+    add_custom_command(OUTPUT ../engine/${SHADER_DIR}/${SPV}/${FILENAME}.spv
+        COMMAND ${Vulkan_GLSLC_EXECUTABLE} ${SHADER} -o ../engine/${SHADER_DIR}/${SPV}/${FILENAME}.spv
         DEPENDS ${SHADER}
         COMMENT "Compiling ${FILENAME}")
-        list(APPEND SPV_SHADERS ../engine/${SHADER_DIR}/${FILENAME}.spv)
+        list(APPEND SPV_SHADERS ../engine/${SHADER_DIR}/${SPV}/${FILENAME}.spv)
 endForeach()
 
 add_custom_target(shaders ALL DEPENDS ${SPV_SHADERS})
