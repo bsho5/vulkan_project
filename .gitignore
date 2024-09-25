@@ -2,4 +2,4 @@ build/
 *.idx
 .vscode/
 .DS_Store
-.spv
+engine/shaders/spv
