@@ -47,7 +47,7 @@ vec3 ambientLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
 vec3 cameraPosWorld = ubo.invViewMatrix[3].xyz;
 vec3 viewDir    =  normalize( cameraPosWorld - fragPosWorld ); 
 vec3 halfwayDir = normalize(normalize(lightDir) + viewDir);
-float specularStrength = 1.0;
+float specularStrength = 2.0;
 float shininess = 32.0;
 float spec =  pow(max(dot(halfwayDir,(fragNormalWorld)), 0.0), shininess);
 vec3 specular = specularStrength * spec * ubo.lightColor.xyz ;  
@@ -57,10 +57,10 @@ vec3 I = normalize(-viewDir);
 vec3 reflectDir = normalize( reflect(I ,  fragNormalWorld));
 reflectDir.y = -reflectDir.y;
 reflectDir.x = -reflectDir.x;
-vec3 reflectedColor = 0.5 * texture(skyboxTexture, reflectDir).rgb;
+vec3 reflectedColor = texture(skyboxTexture, reflectDir).rgb;
 
 // fresnel
 float fresnel = pow(1 - dot(fragNormalWorld, I),5);
 
-color = vec4(fragColor * (reflectedColor+ diffuseLight +ambientLight+ specular  ), 1.0);  
+color = vec4(fragColor * ( diffuseLight +ambientLight+ specular  ), 1.0);  
 }

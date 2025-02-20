@@ -4,3 +4,4 @@
 /Users/bsho5/VulkanSDK/1.2.198.1/macOS/bin/glslc shaders/moon_shader.frag -o shaders/spv/moon_shader.frag.spv
 /Users/bsho5/VulkanSDK/1.2.198.1/macOS/bin/glslc shaders/ocean_shader.vert -o shaders/spv/ocean_shader.vert.spv
 /Users/bsho5/VulkanSDK/1.2.198.1/macOS/bin/glslc shaders/ocean_shader.frag -o shaders/spv/ocean_shader.frag.spv
+/Users/bsho5/VulkanSDK/1.2.198.1/macOS/bin/glslc shaders/compute_ocean_shader.comp -o shaders/spv/compute_ocean_shader.comp.spv

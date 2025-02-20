@@ -14,7 +14,9 @@
 #include <cassert>
 #include <chrono>
 
+#include <cstdio>
 #include <vulkan/vulkan_core.h>
+#include <xlocale/_stdio.h>
 
 
 // libs
@@ -43,6 +45,7 @@ App::App() {
                    .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                 SwapChain::MAX_FRAMES_IN_FLIGHT)
                    .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+                   .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
                    .build();
   loadGameObjects();
 }
@@ -55,6 +58,20 @@ void App::run() {
         device, sizeof(GlobalUbo), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
     uboBuffers[i]->map();
+  }
+
+  std::vector<std::unique_ptr<LveBuffer>> computeBuffer(
+      SwapChain::MAX_FRAMES_IN_FLIGHT);
+      const uint32_t numElements = 6291456;
+
+//size_t bufferSize = (sizeof(glm::vec4) + sizeof(glm::vec3) + sizeof(float)); 
+size_t bufferSize = (sizeof(glm::vec4) + sizeof(glm::vec3) + sizeof(float)); 
+
+  for (int i = 0; i < computeBuffer.size(); i++) {
+    computeBuffer[i] = std::make_unique<LveBuffer>(
+        device, bufferSize, numElements, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    computeBuffer[i]->map();
   }
 
   cubemap = std::make_unique<CubeMap>(device);
@@ -78,20 +95,23 @@ void App::run() {
 
   auto globalSetLayout = LveDescriptorSetLayout::Builder(device)
                              .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                         VK_SHADER_STAGE_ALL_GRAPHICS)
+                                         VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_COMPUTE_BIT)
                              .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)                        
+                             .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_VERTEX_BIT  | VK_SHADER_STAGE_COMPUTE_BIT)                        
 
                              .build();
 
   std::vector<VkDescriptorSet> globalDescriptorSets(
       SwapChain::MAX_FRAMES_IN_FLIGHT);
      
+
   for (int i = 0; i < globalDescriptorSets.size(); i++) {
     auto bufferInfo = uboBuffers[i]->descriptorInfo();
+    auto computeBufferInfo = computeBuffer[i]->descriptorInfo();
     LveDescriptorWriter(*globalSetLayout, *globalPool)
         .writeBuffer(0, &bufferInfo)
          .writeImage(1, &cubemapImageInfo)
-        // .writeImage(2, &imageInfo2)
+        .writeBuffer(2, &computeBufferInfo)
         .build(globalDescriptorSets[i]);
   }
  SimpleRenderSystem simpleRenderSystem{
@@ -146,14 +166,20 @@ void App::run() {
       uboBuffers[frameIndex]->flush();
 
       // render
+
+        simpleRenderSystem.computeOcean(frameInfo);
+        
       renderer.beginSwapChainRenderPass(commandBuffer);
     
      simpleRenderSystem.renderSkyBox(frameInfo);
      simpleRenderSystem.renderOcean(frameInfo);
      simpleRenderSystem.renderMoon(frameInfo);
+     
       
 
       renderer.endSwapChainRenderPass(commandBuffer);
+          
+
       renderer.endFrame();
     }
   }

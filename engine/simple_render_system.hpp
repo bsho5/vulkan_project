@@ -26,17 +26,22 @@ public:
   void renderSkyBox(FrameInfo &frameInfo);
   void renderOcean(FrameInfo &frameInfo);
   void renderMoon(FrameInfo &frameInfo);
+  void computeOcean(FrameInfo &frameInfo);
+
+  
 
 private:
   void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
-
+   void createComputePipelineLayout(VkDescriptorSetLayout globalSetLayout);
   void createPipeline(VkRenderPass renderPass);
 
   LveDevice &lveDevice;
 
   std::unique_ptr<Pipeline> skyBoxPipeline;
   std::unique_ptr<Pipeline> oceanPipeline;
+  std::unique_ptr<Pipeline> computeOceanPipeline;
   std::unique_ptr<Pipeline> moonPipeline;
   VkPipelineLayout pipelineLayout;
+  VkPipelineLayout computePipelineLayout;
 };
 } // namespace lve
